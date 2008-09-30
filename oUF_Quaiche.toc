@@ -1,0 +1,11 @@
+## Interface: 20400
+## Title: oUF_Quaiche
+## Author: Peter Provost (PProvost)
+## Version: 1.0
+## Notes: oUF layout for QBertUI v4
+## Dependencies: oUF
+## OptionalDeps: tekDebug
+## X-License: Apache 2.0
+## X-Credits: haste, Lyn, Ammo
+
+layout.lua
