@@ -326,13 +326,13 @@ local style = function(settings, self, unit)
 end
 
 oUF:RegisterStyle("Quaiche", setmetatable({
-	["initial-width"] = 144,
+	["initial-width"] = 104,
 	["initial-height"] = 24,
 }, {__call = style}))
 
 local setmetatable = _G.setmetatable
 oUF:RegisterStyle("Quaiche_Raid", setmetatable({
-	["initial-width"] = 70,
+	["initial-width"] = 50,
 	["initial-height"] = 20,
 	["hide-health-text"] = true,
 	["hide-buffs"] = true,
