@@ -19,7 +19,7 @@ limitations under the License.
 --]]
 
 --- Configuration parameters. Use these for simple adjustments. 
-local left, top = 10, -20 --1070, -640
+local left, top = 10, -20
 local powerbar_height = 3
 
 --- Global function/symbol storage
@@ -294,7 +294,7 @@ local style = function(settings, self, unit)
 	if (not unit and not hideBuffs) or (unit == "player") then -- Player Party but not Raid
 		local buffs = CreateFrame("Frame", nil, self)
 		buffs:SetHeight(height)
-		buffs:SetWidth(8*height)
+		buffs:SetWidth(16*height)
 		buffs:SetPoint("TOPLEFT", self, "TOPRIGHT", 2, 0)
 		buffs.size = height
 		buffs.gap = true
@@ -304,7 +304,7 @@ local style = function(settings, self, unit)
 
 		local debuffs = CreateFrame("Frame", nil, self)
 		debuffs:SetHeight(height)
-		debuffs:SetWidth(8*height)
+		debuffs:SetWidth(16*height)
 		debuffs:SetPoint("BOTTOMLEFT", self, "BOTTOMRIGHT", 2, 0)
 		debuffs.size = height
 		debuffs.gap = true
