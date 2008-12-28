@@ -19,7 +19,7 @@ limitations under the License.
 --]]
 
 --- Configuration parameters. Use these for simple adjustments. 
-local left, top = 10, -20
+local left, top = 10, -25
 local powerbar_height = 3
 
 --- Global function/symbol storage
@@ -238,6 +238,14 @@ local style = function(settings, self, unit)
 	afkIcon:Hide()
 	self.AFKIcon = afkIcon
 
+
+	-- Support for oUF_LifebloomStack
+	local lbs = CreateFrame("Frame", nil, hp)
+	lbs:SetPoint("RIGHT", hp, "RIGHT", -2, -2)
+	lbs:SetWidth(10)
+	lbs:SetHeight(hp_height)
+	self.LifebloomStack = lbs
+
 	-- Support for oUF_CombatFeedback
 	local cbft = hp:CreateFontString(nil, "OVERLAY")
 	cbft:SetPoint("CENTER", self, "CENTER")
@@ -338,6 +346,7 @@ oUF:RegisterStyle("Quaiche_Raid", setmetatable({
 	["hide-buffs"] = true,
 }, {__call = style}))
 
+--[[ STANDARD FRAMES ]]--
 
 oUF:SetActiveStyle("Quaiche") 
 
@@ -346,11 +355,8 @@ player:SetPoint("TOPLEFT", left, top)
 player:SetAttribute("showSolo", false)
 player:SetAttribute("showParty", true)
 player:SetAttribute("showRaid", true)
--- HACK: Until I get a HUD working
-if toc < 30000 then
-	UnregisterUnitWatch(player)
-	player:Hide()
-end
+UnregisterUnitWatch(player)
+player:Hide()
 
 local party = oUF:Spawn("header", "oUF_Party")
 party:SetPoint("TOPLEFT", player, "BOTTOMLEFT", 0, -6)
@@ -366,24 +372,7 @@ focus:SetPoint("CENTER", 200, 285)
 local tot = oUF:Spawn("targettarget")
 tot:SetPoint("CENTER", 0, -145)
 
---[[
--- Main assist:
---  * spawn a standard raid header
---	* header:SetAttribute("groupFilter", "MAINASSIST")
---  * see http://wowprogramming.com/docs/secure_template/Group_Headers
---  * Same thing should work for MAINTANK if I want to do it
-
-local mainAssist = oUF:Spawn("header", "oUF_MainAssist")
-mainAssist:SetAttribute("useparent-unit", true)
-mainAssist:SetAttribute("unitsuffix", "target")
-mainAssist:SetAttribute("*type1","target")
-mainAssist:SetAttribute("groupFilter", "MAINASSIST")
-mainAssist:SetAttribute("showRaid", true)
-mainAssist:SetAttribute("yOffset", 4)
-mainAssist:SetAttribute("point", "TOP")
-mainAssist:SetPoint("CENTER", -200, 200)
-mainAssist:Show()
-]]
+--[[ RAID FRAMES ]]--
 
 oUF:SetActiveStyle("Quaiche_Raid")
 
@@ -410,18 +399,15 @@ local function EventHandler(self, event)
 	else
 		self:UnregisterEvent('PLAYER_REGEN_DISABLED')
 
-		-- HACK: Until I get a working HUD
-		if toc < 30000 then
-			-- Hide player if playing solo
-			if GetNumRaidMembers() == 0 and GetNumPartyMembers() == 0 and player:IsVisible() then
-				Debug("Hiding player frame")
-				UnregisterUnitWatch(player)
-				player:Hide()
-			elseif (not player:IsVisible()) and (GetNumRaidMembers() > 0 or GetNumPartyMembers() > 0) then
-				Debug("Showing player frame")
-				player:Show()
-				RegisterUnitWatch(player)
-			end
+		-- Hide player if playing solo
+		if GetNumRaidMembers() == 0 and GetNumPartyMembers() == 0 and player:IsVisible() then
+			Debug("Hiding player frame")
+			UnregisterUnitWatch(player)
+			player:Hide()
+		elseif (not player:IsVisible()) and (GetNumRaidMembers() > 0 or GetNumPartyMembers() > 0) then
+			Debug("Showing player frame")
+			player:Show()
+			RegisterUnitWatch(player)
 		end
 
 		-- Hide party in raid
