@@ -97,12 +97,12 @@ local updateName = function(self, event, unit)
 	end
 end
 
-local updateRaidIcon = function(self, event)
+local updateRIcon = function(self, event)
 	local index = GetRaidTargetIndex(self.unit)
 	if(index) then
-		self.RaidIcon:SetText(ICON_LIST[index].."22|t")
+		self.RIcon:SetText(ICON_LIST[index].."22|t")
 	else
-		self.RaidIcon:SetText()
+		self.RIcon:SetText()
 	end
 end
 
@@ -238,14 +238,6 @@ local style = function(settings, self, unit)
 	afkIcon:Hide()
 	self.AFKIcon = afkIcon
 
-
-	-- Support for oUF_LifebloomStack
-	local lbs = CreateFrame("Frame", nil, hp)
-	lbs:SetPoint("RIGHT", hp, "RIGHT", -2, -2)
-	lbs:SetWidth(10)
-	lbs:SetHeight(hp_height)
-	self.LifebloomStack = lbs
-
 	-- Support for oUF_CombatFeedback
 	local cbft = hp:CreateFontString(nil, "OVERLAY")
 	cbft:SetPoint("CENTER", self, "CENTER")
@@ -283,9 +275,9 @@ local style = function(settings, self, unit)
 	raid_icon:SetJustifyH("CENTER")
 	raid_icon:SetFontObject(GameFontNormalSmall)
 	raid_icon:SetTextColor(1, 1, 1)
-	self.RaidIcon = raid_icon
-	self.RAID_TARGET_UPDATE = updateRaidIcon
-	self:RegisterEvent("RAID_TARGET_UPDATE")
+	self.RIcon = raid_icon
+	self:RegisterEvent("RAID_TARGET_UPDATE", updateRIcon)
+	table.insert(self.__elements, updateRIcon)
 
 	-- Pet frame specialness
 	if unit == 'pet' then
@@ -298,6 +290,7 @@ local style = function(settings, self, unit)
 		end
 	end
 
+	--[[
 	local height = 12
 	if (not unit and not hideBuffs) or (unit == "player") then -- Player Party but not Raid
 		local buffs = CreateFrame("Frame", nil, self)
@@ -320,9 +313,10 @@ local style = function(settings, self, unit)
 		debuffs.filter = false
 		self.Debuffs = debuffs
 	end
+	]]
 
 	-- Range fading on party
-	if(not unit) then
+	if (not unit) or string.match(unit, "partypet") then
 		self.Range = true
 		self.inRangeAlpha = 1
 		self.outsideRangeAlpha = .4
@@ -333,15 +327,23 @@ local style = function(settings, self, unit)
 	return self
 end
 
+local setmetatable = _G.setmetatable
 oUF:RegisterStyle("Quaiche", setmetatable({
 	["initial-width"] = 104,
 	["initial-height"] = 24,
+	["hide-buffs"] = true,
 }, {__call = style}))
 
-local setmetatable = _G.setmetatable
 oUF:RegisterStyle("Quaiche_Raid", setmetatable({
 	["initial-width"] = 50,
 	["initial-height"] = 20,
+	["hide-health-text"] = true,
+	["hide-buffs"] = true,
+}, {__call = style}))
+
+oUF:RegisterStyle("Quaiche_PartyPet", setmetatable({
+	["initial-width"] = 50,
+	["initial-height"] = 24,
 	["hide-health-text"] = true,
 	["hide-buffs"] = true,
 }, {__call = style}))
@@ -371,6 +373,18 @@ focus:SetPoint("CENTER", 200, 285)
 
 local tot = oUF:Spawn("targettarget")
 tot:SetPoint("CENTER", 0, -145)
+
+--[[ Party Pet ]]
+
+oUF:SetActiveStyle("Quaiche_PartyPet")
+
+local partypet = {}
+partypet[1] = oUF:Spawn('partypet1', 'oUF_PartyPet1')
+partypet[1]:SetPoint('TOPLEFT', party, 'TOPRIGHT', 6, 0)
+for i =2, 4 do
+	partypet[i] = oUF:Spawn('partypet'..i, 'oUF_PartyPet'..i)
+	partypet[i]:SetPoint('TOP', partypet[i-1], 'BOTTOM', 0, -4)
+end
 
 --[[ RAID FRAMES ]]--
 
