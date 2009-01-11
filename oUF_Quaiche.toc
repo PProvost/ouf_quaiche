@@ -8,4 +8,5 @@
 ## X-License: Apache 2.0
 ## X-Credits: haste, Lyn, Ammo
 
+templates.xml
 layout.lua

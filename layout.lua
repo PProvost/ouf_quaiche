@@ -1,7 +1,7 @@
 --[[
 Name: oUF_Quaiche
 Author: Quaiche
-Description: An oUF layout for QBertUI v4
+Description: A custom oUF layout for QBertUI
 
 Copyright 2008 Quaiche
 
@@ -21,6 +21,10 @@ limitations under the License.
 --- Configuration parameters. Use these for simple adjustments. 
 local left, top = 10, -25
 local powerbar_height = 3
+local statusbartexture = "Interface\\AddOns\\oUF_Quaiche\\Minimalist"
+
+local debugf = tekDebug and tekDebug:GetFrame("MyAddon")
+local function Debug(...) if debugf then debugf:AddMessage(string.join(", ", ...)) end end
 
 --- Global function/symbol storage
 local CreateFrame = _G.CreateFrame
@@ -45,17 +49,7 @@ local UnitIsTapped = _G.UnitIsTapped
 local UnitIsTappedByPlayer = _G.UnitIsTappedByPlayer
 local UnitPowerType = _G.UnitPowerType
 local UnitReaction = _G.UnitReaction
---local UnitReactionColor = _G.UnitReactionColor
 local UnregisterUnitWatch = _G.UnregisterUnitWatch
-
--- Other 
-local toc = select(4, GetBuildInfo()); -- version, build, date, toc
-local power = oUF.colors.power
-local statusbartexture = "Interface\\AddOns\\oUF_Quaiche\\Minimalist"
-local function Print(...) ChatFrame1:AddMessage(string.join(" ", "|cFF33FF99oUF_Quaiche|r:", ...)) end
-
-local debugf = tekDebug and tekDebug:GetFrame("MyAddon")
-local function Debug(...) if debugf then debugf:AddMessage(string.join(", ", ...)) end end
 
 local menu = function(self)
 	local unit = self.unit:sub(1, -2)
@@ -69,21 +63,13 @@ local menu = function(self)
 end
 
 local updateColor = function(self, element, unit, func)
-	local color
+	local color = {}
 	if UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) or not UnitIsConnected(unit) then
-		return element[func](element, .6, .6, .6)
-	elseif unit == 'pet' then
-		color = self.colors.happiness[GetPetHappiness()]
+		element[func](element, .6, .6, .6)
 	elseif UnitIsPlayer(unit) then
 		color = RAID_CLASS_COLORS[select(2, UnitClass(unit))]
 	else
-		-- HACK: Will fix once 3.0 goes live
-		if toc >= 30000 then
-			color = {}
-			color.r, color.g, color.b, color.a = UnitSelectionColor(unit)
-		else
-			color = UnitReactionColor[UnitReaction(unit, "player")]
-		end
+		color.r, color.g, color.b, color.a = UnitSelectionColor(unit)
 	end
 
 	if color then 
@@ -139,7 +125,7 @@ local updatePower = function(self, event, unit, bar, min, max)
 		bar:SetValue(0)
 	end
 
-	local color = power[UnitPowerType(unit)]
+	local color = oUF.colors.power[UnitPowerType(unit)]
 	if(color) then
 		bar:SetStatusBarColor(unpack(color))
 	else
@@ -161,7 +147,6 @@ local style = function(settings, self, unit)
 	local pp_height = settings["initial-height"] - hp_height
 	local width = settings["initial-width"]
 	local hideHealthText = settings["hide-health-text"]
-	local hideBuffs = settings["hide-buffs"]
 
 	-- General menu and event setup
 	self.menu = menu
@@ -223,7 +208,8 @@ local style = function(settings, self, unit)
 	self.Name = name
 	self.UNIT_NAME_UPDATE = updateName
 
-	-- Adjust if hiding health text
+	-- Hide health text if partypet or raid frame
+	Debug("unit="..tostring(unit), "hideHealtText=" .. tostring(hideHealthText))
 	if hideHealthText then
 		hpp:Hide()
 		name:SetPoint("RIGHT", hp, "RIGHT", -3, 0)
@@ -279,47 +265,11 @@ local style = function(settings, self, unit)
 	self:RegisterEvent("RAID_TARGET_UPDATE", updateRIcon)
 	table.insert(self.__elements, updateRIcon)
 
-	-- Pet frame specialness
-	if unit == 'pet' then
-		self:RegisterEvent"UNIT_HAPPINESS"
-		self.UNIT_HAPPINESS = function(self, event, unit)
-			if unit == self.unit then
-				updateColor(self, nameString, unit, 'SetTextColor')
-				updateColor(self, pp, unit, 'SetStatusBarColor')
-			end
-		end
-	end
-
-	--[[
-	local height = 12
-	if (not unit and not hideBuffs) or (unit == "player") then -- Player Party but not Raid
-		local buffs = CreateFrame("Frame", nil, self)
-		buffs:SetHeight(height)
-		buffs:SetWidth(16*height)
-		buffs:SetPoint("TOPLEFT", self, "TOPRIGHT", 2, 0)
-		buffs.size = height
-		buffs.gap = true
-		buffs.spacing = 1
-		buffs.filter = true
-		self.Buffs = buffs
-
-		local debuffs = CreateFrame("Frame", nil, self)
-		debuffs:SetHeight(height)
-		debuffs:SetWidth(16*height)
-		debuffs:SetPoint("BOTTOMLEFT", self, "BOTTOMRIGHT", 2, 0)
-		debuffs.size = height
-		debuffs.gap = true
-		debuffs.spacing = 1
-		debuffs.filter = false
-		self.Debuffs = debuffs
-	end
-	]]
-
-	-- Range fading on party
+	-- Range fading on party and partypets
 	if (not unit) or string.match(unit, "partypet") then
 		self.Range = true
 		self.inRangeAlpha = 1
-		self.outsideRangeAlpha = .4
+		self.outsideRangeAlpha = .5
 	end
 
 	self.PostCreateAuraIcon = auraIcon
@@ -331,21 +281,12 @@ local setmetatable = _G.setmetatable
 oUF:RegisterStyle("Quaiche", setmetatable({
 	["initial-width"] = 104,
 	["initial-height"] = 24,
-	["hide-buffs"] = true,
 }, {__call = style}))
 
 oUF:RegisterStyle("Quaiche_Raid", setmetatable({
 	["initial-width"] = 50,
 	["initial-height"] = 20,
 	["hide-health-text"] = true,
-	["hide-buffs"] = true,
-}, {__call = style}))
-
-oUF:RegisterStyle("Quaiche_PartyPet", setmetatable({
-	["initial-width"] = 50,
-	["initial-height"] = 24,
-	["hide-health-text"] = true,
-	["hide-buffs"] = true,
 }, {__call = style}))
 
 --[[ STANDARD FRAMES ]]--
@@ -362,10 +303,9 @@ player:Hide()
 
 local party = oUF:Spawn("header", "oUF_Party")
 party:SetPoint("TOPLEFT", player, "BOTTOMLEFT", 0, -6)
-party:SetManyAttributes(
-	"showParty", true, 
-	"yOffset", -4
-)
+party:SetAttribute("template", "oUF_QuaichePartyPets")
+party:SetAttribute("showParty", true)
+party:SetAttribute("yOffset", -4)
 party:Show()
 
 local focus = oUF:Spawn("focus")
@@ -374,40 +314,27 @@ focus:SetPoint("CENTER", 200, 285)
 local tot = oUF:Spawn("targettarget")
 tot:SetPoint("CENTER", 0, -145)
 
---[[ Party Pet ]]
-
-oUF:SetActiveStyle("Quaiche_PartyPet")
-
-local partypet = {}
-partypet[1] = oUF:Spawn('partypet1', 'oUF_PartyPet1')
-partypet[1]:SetPoint('TOPLEFT', party, 'TOPRIGHT', 6, 0)
-for i =2, 4 do
-	partypet[i] = oUF:Spawn('partypet'..i, 'oUF_PartyPet'..i)
-	partypet[i]:SetPoint('TOP', partypet[i-1], 'BOTTOM', 0, -4)
-end
-
 --[[ RAID FRAMES ]]--
 
 oUF:SetActiveStyle("Quaiche_Raid")
 
-local Raid = {}
+local raid = {}
 for i = 1, NUM_RAID_GROUPS do
-	local RaidGroup = oUF:Spawn("header", "oUF_Raid" .. i)
-	RaidGroup:SetAttribute("groupFilter", tostring(i))
-	RaidGroup:SetAttribute("showRaid", true)
-	RaidGroup:SetAttribute("yOffset", -4)
-	RaidGroup:SetAttribute("point", "TOP")
-	table.insert(Raid, RaidGroup)
+	local raidGroup = oUF:Spawn("header", "oUF_Raid" .. i)
+	raidGroup:SetAttribute("groupFilter", tostring(i))
+	raidGroup:SetAttribute("showraid", true)
+	raidGroup:SetAttribute("yOffset", -4)
+	raidGroup:SetAttribute("point", "TOP")
+	table.insert(raid, raidGroup)
 	if i == 1 then
-		RaidGroup:SetPoint("TOPLEFT", player, "BOTTOMLEFT", 0, -6)
+		raidGroup:SetPoint("TOPLEFT", player, "BOTTOMLEFT", 0, -6)
 	else
-		RaidGroup:SetPoint("TOPLEFT", Raid[i-1], "TOPRIGHT", 4, 0)	
+		raidGroup:SetPoint("TOPLEFT", raid[i-1], "TOPRIGHT", 4, 0)	
 	end
-	RaidGroup:Show()
+	raidGroup:Show()
 end
 
 local function EventHandler(self, event)
-	Debug("Event handled: " .. event)
 	if(InCombatLockdown()) then
 		self:RegisterEvent('PLAYER_REGEN_ENABLED')
 	else
@@ -415,11 +342,9 @@ local function EventHandler(self, event)
 
 		-- Hide player if playing solo
 		if GetNumRaidMembers() == 0 and GetNumPartyMembers() == 0 and player:IsVisible() then
-			Debug("Hiding player frame")
 			UnregisterUnitWatch(player)
 			player:Hide()
 		elseif (not player:IsVisible()) and (GetNumRaidMembers() > 0 or GetNumPartyMembers() > 0) then
-			Debug("Showing player frame")
 			player:Show()
 			RegisterUnitWatch(player)
 		end
