@@ -23,7 +23,7 @@ local left, top = 10, -25
 local powerbar_height = 3
 local statusbartexture = "Interface\\AddOns\\oUF_Quaiche\\Minimalist"
 
-local debugf = tekDebug and tekDebug:GetFrame("MyAddon")
+local debugf = tekDebug and tekDebug:GetFrame("oUF_Quaiche")
 local function Debug(...) if debugf then debugf:AddMessage(string.join(", ", ...)) end end
 
 --- Global function/symbol storage
