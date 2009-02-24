@@ -1,12 +1,11 @@
 ## Interface: 30000
 ## Title: oUF_Quaiche
 ## Author: Quaiche
-## Version: 1.0
+## Version: 4.0
 ## Notes: oUF layout for QBertUI v4
 ## Dependencies: oUF
-## OptionalDeps: tekDebug
+## OptionalDeps: tekDebug, oUF_AFKIcon, oUF_Banzai, oUF_BarFader, oUF_CombatFeedback, oUF_DebuffHighlights, oUF_DruidHots, oUF_HealComm, oUF_ReadyCheck
 ## X-License: Apache 2.0
-## X-Credits: haste, Lyn, Ammo
 
 templates.xml
 layout.lua
