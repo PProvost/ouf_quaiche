@@ -1,0 +1,36 @@
+h2. About oUF_Quaiche
+
+This is my own custom oUF layout. As with all oUF layouts, this addon requires oUF to function.
+
+Provides the following Unit Frames
+* Player
+* Target
+* Target of Target 
+* Focus
+* Focus Target
+* Pet
+* Party
+* Party Pets
+* Raid
+* Raid Pets
+
+h2. Required and Optional Dependencies
+
+You must download and install oUF to use this layout:
+"http://www.wowinterface.com/downloads/info9994-oUF.html":http://www.wowinterface.com/downloads/info9994-oUF.html
+
+In addition, this layout support the following oUF Extensions:
+* "oUF_AFKIcon":http://wow.curse.com/downloads/wow-addons/details/ouf_afkicon.aspx
+* "oUF_Banzai":http://www.curse.com/downloads/wow-addons/details/o-uf_banzai.aspx
+* "oUF_BarFader":http://www.wowinterface.com/downloads/info10678-30000.17.html
+* "oUF_CombatFeedback":http://www.wowinterface.com/downloads/info8769-oUFCombatFeedback.html
+* "oUF_DebuffHighlight":http://www.wowinterface.com/downloads/info8812-oUFDebuffHighlight.html
+* "oUF_DruidHots":http://wow.curse.com/downloads/wow-addons/details/ouf_druidhots.aspx
+* "oUF_IncomingHeals":http://www.curse.com/downloads/wow-addons/details/o-uf_incoming-heals.aspx
+* "oUF_ReadyCheck":http://www.wowinterface.com/downloads/info9856-oUFReadyCheck.html
+
+h2. Bugs, Suggestions or Comments
+
+Please file any bugs, suggestions or comments as a ticket on the "CurseForge project":http://wow.curseforge.com/projects/ouf_quaiche/tickets/
+
+
