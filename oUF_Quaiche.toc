@@ -4,7 +4,7 @@
 ## Version: 4.0
 ## Notes: oUF layout for QBertUI v4
 ## Dependencies: oUF
-## OptionalDeps: tekDebug, oUF_AFKIcon, oUF_Banzai, oUF_BarFader, oUF_CombatFeedback, oUF_DebuffHighlights, oUF_DruidHots, oUF_HealComm, oUF_ReadyCheck
+## OptionalDeps: tekDebug, oUF_AFKIcon, oUF_Banzai, oUF_BarFader, oUF_CombatFeedback, oUF_DebuffHighlights, oUF_DruidHots, oUF_HealComm, oUF_ReadyCheck, oUF_Fader
 ## X-License: Apache 2.0
 
 templates.xml

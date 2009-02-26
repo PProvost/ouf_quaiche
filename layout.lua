@@ -18,9 +18,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --]]
 
--- Todo List:
--- *  
-
 --- Global function/symbol storage
 local CreateFrame = _G.CreateFrame
 local GameFontNormal = _G.GameFontNormal
@@ -57,6 +54,9 @@ local backdrop = {
 		bottom = border_size,
 	},
 }
+
+local isBarFaderEnabled = select(4, GetAddOnInfo("oUF_BarFader"))
+local isFaderEnabled = select(4, GetAddOnInfo("oUF_Fader"))
 
 do --[[ Custom colors ]]
 	for powerType, value in pairs(oUF.colors.power) do
@@ -320,10 +320,29 @@ local style = function(settings, self, unit)
 		self.Debuffs = debuffs
 	end
 
-	-- Support for oUF_BarFader
+	-- Support for oUF_BarFader and oUF_Fader
+	if isFaderEnabled then
+		oUF.Fader:RegisterCondition("PlayerCasting", 
+		function(self, unit)
+			return UnitCastingInfo("player") ~= nil
+		end, 
+		"UNIT_SPELLCAST_START:UNIT_SPELLCAST_FAILED:UNIT_SPELLCAST_STOP:UNIT_SPELLCAST_CHANNEL_START:UNIT_SPELLCAST_CHANNEL_UPDATE:UNIT_SPELLCAST_CHANNEL_STOP:UNIT_SPELLCAST_CHANNEL_STOP"
+		)
+	end
 	if unit == "player" or unit=="pet" then
-		self.BarFade = true
-		self.BarFadeMinAlpha = 0
+		if isBarFaderEnabled then
+			self.BarFade = true
+			self.BarFadeMinAlpha = 0
+		elseif isFaderEnabled then
+			self.NormalAlpha = 0
+			self.Fader = {
+				[1] = {PlayerTarget=1, Combat=1, PlayerCasting=1},
+				[2] = {notUnitMaxHealth = 0.7, notUnitMaxMana = 0.7},
+				[3] = {notPlayerMaxHealth=0.7, notPlayerMaxMana=0.7},
+				-- [1] = {notUnitMaxHealth=1, notUnitMaxMana=1, PlayerTarget=1, notPlayerMaxHealth=1, notPlayerMaxMana=1 },
+				-- [3] = {notCombat = 0.5},
+			}
+		end
 	end
 
 	-- Support for oUF_AFK
