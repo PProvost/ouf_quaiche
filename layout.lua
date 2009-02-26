@@ -19,7 +19,6 @@ limitations under the License.
 --]]
 
 -- Todo List:
--- * Remove updateColor function. Take a look at the autocoloring in oUF
 -- *  
 
 --- Global function/symbol storage
@@ -27,29 +26,24 @@ local CreateFrame = _G.CreateFrame
 local GameFontNormal = _G.GameFontNormal
 local GameFontNormalSmall = _G.GameFontNormalSmall
 local GetNumRaidMembers = _G.GetNumRaidMembers
-local GetNumPartyMembers = _G.GetNumPartyMembers
-local GetPetHappiness = _G.GetPetHappiness
 local GetRaidTargetIndex = _G.GetRaidTargetIndex
 local ICON_LIST = _G.ICON_LIST
 local InCombatLockdown = _G.InCombatLockdown
-local RAID_CLASS_COLORS = _G.RAID_CLASS_COLORS
-local RegisterUnitWatch = _G.RegisterUnitWatch
 local select = _G.select
 local ToggleDropDownMenu = _G.ToggleDropDownMenu
-local UnitClass = _G.UnitClass
 local UnitIsConnected = _G.UnitIsConnected
 local UnitIsDead = _G.UnitIsDead
 local UnitIsGhost = _G.UnitIsGhost
-local UnitIsPlayer = _G.UnitIsPlayer
 local UnitIsTapped = _G.UnitIsTapped
 local UnitIsTappedByPlayer = _G.UnitIsTappedByPlayer
-local UnitPowerType = _G.UnitPowerType
-local UnitReaction = _G.UnitReaction
-local UnregisterUnitWatch = _G.UnregisterUnitWatch
 
+--- Configuration parameters
 local group_left, group_top = 10, -25
 local statusbartexture = "Interface\\AddOns\\oUF_Quaiche\\Minimalist"
 local border_size = 1
+local party_spacing = 3
+local raid_spacing = 3
+local raid_group_spacing = 6
 local backdrop = {
 	bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
 	tile = true,
@@ -64,6 +58,18 @@ local backdrop = {
 	},
 }
 
+do --[[ Custom colors ]]
+	for powerType, value in pairs(oUF.colors.power) do
+		if powerType == "RAGE" then
+			oUF.colors.power[powerType] = { 0.75, 0.45, 0.25 }
+		elseif powerType == "ENERGY" then
+			oUF.colors.power[powerType] = { 1.0, 1.0, 0.45 }
+		elseif powerType == "MANA" then
+			oUF.colors.power[powerType] = { 0.25, 0.45, 0.75 }
+		end
+	end
+end
+
 local menu = function(self)
 	local unit = self.unit:sub(1, -2)
 	local cunit = self.unit:gsub("(.)", string.upper, 1)
@@ -75,25 +81,10 @@ local menu = function(self)
 	end
 end
 
-local updateColor = function(self, element, unit, func)
-	local color = {}
-	if UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) or not UnitIsConnected(unit) then
-		element[func](element, .6, .6, .6)
-	elseif UnitIsPlayer(unit) then
-		color = RAID_CLASS_COLORS[select(2, UnitClass(unit))]
-	else
-		color.r, color.g, color.b, color.a = UnitSelectionColor(unit)
-	end
-
-	if color then 
-		element[func](element, color.r, color.g, color.b)
-	end
-end
-
 local updateName = function(self, event, unit)
 	if(self.unit == unit) then
 		local nameString = UnitName(unit)
-		if unit=="target" or unit=="player" then
+		if unit=="target" or unit=="player" then -- prepend the name with level and classification
 			local suffix = ""
 			local level = UnitLevel(unit)
 			if level == -1 then level = "??" end
@@ -101,7 +92,7 @@ local updateName = function(self, event, unit)
 			if classification == "rareelite" then suffix = "++" end
 			if classification == "rare" then suffix = "r" end
 			if classification == "elite" then suffix = "+" end
-			nameString = nameString .. " |cFF999999" .. level .. suffix .. "|r"
+			nameString = " |cFF999999" .. level .. suffix .. "|r " .. nameString
 		end
 		self.Name:SetText(nameString)
 	end
@@ -152,55 +143,21 @@ local updateHealth = function(self, event, unit, bar, min, max)
 
 	if(UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) or not UnitIsConnected(unit)) then
 		self.Name:SetTextColor(.6, .6, .6)
-		self.Power:SetStatusBarColor(.6, .6, .6)
+		-- self.Power:SetStatusBarColor(.6, .6, .6) -- TODO can I delete this?
 	else
 		self:UNIT_NAME_UPDATE(event, unit)
 	end
-
-	updateColor(self, bar, unit, 'SetStatusBarColor')
 end
 
--- Druid Mana code
---[[
-local function PreUpdatePower(self, event, unit)
-	ifi(self.unit ~= 'player') then return end
-
-	local _, powertype = UnitPowerType('player')
-	local min = UnitPower('player', SPELL_POWER_MANA)
-	local max = UnitPowerMax('player', SPELL_POWER_MANA)
-
-	self.DruidMana:SetMinMaxValues(0, max)
-	self.DruidMana:SetValue(min)
-
-	if(min ~= max) then
-		self.DruidMana.Text:SetFormattedText('%d%%', math.floor(min / max * 100))
-	else
-		self.DruidMana.Text:SetText()
-	end
-
-	self.DruidMana:SetAlpha((powertype ~= 0) and 1 or 0)
-	self.DruidMana.Text:SetAlpha((powertype ~= 0) and 1 or 0)
-end
-]]
-
-local updatePower = function(self, event, unit, bar, min, max)
+local PostUpdatePower = function(self, event, unit, bar, min, max)
 	if(min == 0 or max == 0 or not UnitIsConnected(unit)) then
 		bar:SetValue(0)
 	elseif(UnitIsDead(unit) or UnitIsGhost(unit)) then
 		bar:SetValue(0)
 	end
-
-	local powerType = select(2, UnitPowerType(unit))
-	if powerType == "RAGE" then
-		bar:SetStatusBarColor(0.75, 0.45, 0.25)
-	elseif powerType == "ENERGY" then
-		bar:SetStatusBarColor(1.0, 1.0, 0.45)
-	else
-		bar:SetStatusBarColor(0.25, 0.45, 0.75)
-	end
 end
 
-local auraIcon = function(self, button)
+local PostCreateAuraIcon = function(self, button)
 	local count = button.count
 	count:ClearAllPoints()
 	count:SetPoint"BOTTOM"
@@ -218,7 +175,7 @@ local style = function(settings, self, unit)
 	self.menu = menu
 	self:SetScript("OnEnter", UnitFrame_OnEnter)
 	self:SetScript("OnLeave", UnitFrame_OnLeave)
-	self:RegisterForClicks"anyup"
+	self:RegisterForClicks("anyup")
 	self:SetAttribute("*type2", "menu")
 
 	-- Backdrop makes a border
@@ -228,22 +185,47 @@ local style = function(settings, self, unit)
 	-- Healthbar
 	local hp = CreateFrame("StatusBar", nil, self)
 	hp:SetStatusBarTexture(statusbartexture)
-	hp:SetStatusBarColor(.25, .25, .35)
 	hp:SetHeight(hp_height)
 	hp:SetPoint("TOP", self, "TOP", 0, -border_size)
 	hp:SetPoint("LEFT", self, "LEFT", border_size, 0)
 	hp:SetPoint("RIGHT", self, "RIGHT", -border_size, 0)
+	hp.colorDisconnected = true
+	hp.colorClass = true
+	if unit and string.match(unit,"target") then 
+		hp.colorTapping = true
+		hp.colorReaction = true
+	end
 	self.Health = hp
-	self.OverrideUpdateHealth = updateHealth
+	self.PostUpdateHealth = updateHealth
+
+	-- Unit name
+	local name = hp:CreateFontString(nil, "OVERLAY")
+	name:SetPoint("LEFT", hp, "LEFT", 2, 0)
+	local right_offset = (unit=="player" or unit=="target") and 65 or 33
+	name:SetPoint("RIGHT", hp, "RIGHT", -right_offset, 0)
+	name:SetPoint("TOP", hp, "TOP", 0, -2)
+	name:SetPoint("BOTTOM", hp, 'BOTTOM', 0, 2)
+	name:SetJustifyH("LEFT")
+	name:SetJustifyV("MIDDLE")
+	name:SetFontObject(GameFontNormalSmall)
+	name:SetTextColor(1, 1, 1)
+	self.Name = name
+	self.UNIT_NAME_UPDATE = updateName
 
 	-- Healthbar text
 	local hpp = hp:CreateFontString(nil, "OVERLAY")
-	hpp:SetPoint("RIGHT", -3, 0)
+	hpp:SetPoint("RIGHT", -2, 0)
 	hpp:SetWidth(unit=="target" and 100 or 50)
 	hpp:SetJustifyH("RIGHT")
 	hpp:SetFontObject(GameFontNormalSmall)
 	hpp:SetTextColor(1, 1, 1)
 	hp.value = hpp
+
+	-- Hide raid and party pets
+	if not unit and self:GetAttribute("unitsuffix") == "pet" then
+		hpp:Hide()
+		name:SetPoint("RIGHT", hp, "RIGHT", -2)
+	end
 
 	-- Powerbar
 	local pp = CreateFrame("StatusBar", nil, self)
@@ -253,14 +235,16 @@ local style = function(settings, self, unit)
 	pp:SetPoint("RIGHT", self, "RIGHT", -border_size, 0)
 	pp:SetPoint("TOP", hp, "BOTTOM")
 	pp.colorTapping = true
+	pp.colorDisconnected = true
+	pp.colorPower = true
 	self.Power = pp
-	self.PostUpdatePower = updatePower
+	self.PostUpdatePower = PostUpdatePower
 
 	-- Castbar
 	if unit == "player" or unit == "target" then
 		local cb = CreateFrame("StatusBar", nil, self)
 		cb:SetStatusBarTexture(statusbartexture)
-		cb:SetStatusBarColor(.75, .75, .35, 0.75)
+		cb:SetStatusBarColor(.75, .75, .35, 0.65)
 		cb:SetAllPoints(pp)
 		cb:SetFrameStrata("HIGH")
 
@@ -293,20 +277,6 @@ local style = function(settings, self, unit)
 			self.CPoints[i] = bullet
 		end
 	end
-
-	-- Unit name
-	local name = hp:CreateFontString(nil, "OVERLAY")
-	name:SetPoint("LEFT", hp, "LEFT", 4, 0)
-	local right_offset = (unit=="player" or unit=="target") and 65 or 33
-	name:SetPoint("RIGHT", hp, "RIGHT", -right_offset, 0)
-	name:SetPoint("TOP", hp, "TOP", 0, -2)
-	name:SetPoint("BOTTOM", hp, 'BOTTOM', 0, 2)
-	name:SetJustifyH("LEFT")
-	name:SetJustifyV("MIDDLE")
-	name:SetFontObject(GameFontNormalSmall)
-	name:SetTextColor(1, 1, 1)
-	self.Name = name
-	self.UNIT_NAME_UPDATE = updateName
 
 	if unit == "player" then
 		local debuffs = CreateFrame("Frame", nil, self)
@@ -433,15 +403,15 @@ local style = function(settings, self, unit)
 		self.outsideRangeAlpha = .5
 	end
 
-	self.PostCreateAuraIcon = auraIcon
+	self.PostCreateAuraIcon = PostCreateAuraIcon
 
 	return self
 end
 
 local setmetatable = _G.setmetatable
 oUF:RegisterStyle("Quaiche_Full", setmetatable({
-	["initial-width"] = 185,
-	["initial-height"] = 30,
+	["initial-width"] = 200,
+	["initial-height"] = 32,
 	["powerbar-height"] = 8,
 }, {__call = style}))
 
@@ -457,16 +427,15 @@ oUF:RegisterStyle("Quaiche_Party", setmetatable({
 }, {__call = style}))
 
 oUF:RegisterStyle("Quaiche_Raid", setmetatable({
-	["initial-width"] = 80,
+	["initial-width"] = 115,
 	["initial-height"] = 18,
 	["powerbar-height"] = 2,
 }, {__call = style}))
 
 --[[ STANDARD FRAMES ]]--
-
 oUF:SetActiveStyle("Quaiche_Full") 
-oUF:Spawn("player"):SetPoint("CENTER", UIParent, -175, -160)
-oUF:Spawn("target"):SetPoint("CENTER", UIParent, 175, -160)
+oUF:Spawn("player"):SetPoint("CENTER", UIParent, -180, -145)
+oUF:Spawn("target"):SetPoint("CENTER", UIParent, 180, -145)
 
 oUF:SetActiveStyle("Quaiche_Half")
 oUF:Spawn("focus"):SetPoint("BOTTOMRIGHT", oUF.units.player, "TOPRIGHT", 0, 5)
@@ -479,7 +448,7 @@ local party = oUF:Spawn("header", "oUF_Party")
 party:SetPoint("TOPLEFT", group_left, group_top)
 party:SetAttribute("template", "oUF_QuaichePartyPets")
 party:SetAttribute("showParty", true)
-party:SetAttribute("yOffset", -4)
+party:SetAttribute("yOffset", -party_spacing)
 party:Show()
 
 oUF:SetActiveStyle("Quaiche_Raid")
@@ -488,13 +457,14 @@ for i = 1, NUM_RAID_GROUPS do
 	local raidGroup = oUF:Spawn("header", "oUF_Raid" .. i)
 	raidGroup:SetAttribute("groupFilter", tostring(i))
 	raidGroup:SetAttribute("showraid", true)
-	raidGroup:SetAttribute("yOffset", -4)
+	raidGroup:SetAttribute("yOffset", -raid_spacing)
 	raidGroup:SetAttribute("point", "TOP")
+	raidGroup:SetAttribute("template", "oUF_QuaicheRaidPets")
 	table.insert(raid, raidGroup)
 	if i == 1 then
 		raidGroup:SetPoint("TOPLEFT", group_left, group_top)
 	else
-		raidGroup:SetPoint("TOPLEFT", raid[i-1], "BOTTOMLEFT", 0, -8)	
+		raidGroup:SetPoint("TOPLEFT", raid[i-1], "BOTTOMLEFT", 0, -raid_group_spacing)	
 	end
 	raidGroup:Show()
 end
@@ -521,4 +491,5 @@ eventFrame:RegisterEvent('RAID_ROSTER_UPDATE')
 eventFrame:RegisterEvent('PARTY_LEADER_CHANGED')
 eventFrame:RegisterEvent('PARTY_MEMBERS_CHANGED')
 eventFrame:SetScript('OnEvent', EventHandler)
+
 
