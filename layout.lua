@@ -185,6 +185,7 @@ local style = function(settings, self, unit)
 	-- Healthbar
 	local hp = CreateFrame("StatusBar", nil, self)
 	hp:SetStatusBarTexture(statusbartexture)
+	hp:SetStatusBarColor( unpack(oUF.colors.class["WARRIOR"]) )
 	hp:SetHeight(hp_height)
 	hp:SetPoint("TOP", self, "TOP", 0, -border_size)
 	hp:SetPoint("LEFT", self, "LEFT", border_size, 0)
@@ -230,6 +231,7 @@ local style = function(settings, self, unit)
 	-- Powerbar
 	local pp = CreateFrame("StatusBar", nil, self)
 	pp:SetStatusBarTexture(statusbartexture)
+	pp:SetStatusBarColor( unpack(oUF.colors.power["MANA"]) )
 	pp:SetHeight(pp_height) 
 	pp:SetPoint("LEFT", self, "LEFT", border_size, 0)
 	pp:SetPoint("RIGHT", self, "RIGHT", -border_size, 0)
@@ -416,7 +418,7 @@ oUF:RegisterStyle("Quaiche_Full", setmetatable({
 }, {__call = style}))
 
 oUF:RegisterStyle("Quaiche_Half", setmetatable({
-	["initial-width"] = 90,
+	["initial-width"] = 95,
 	["initial-height"] = 20,
 	["powerbar-height"] = 4,
 }, {__call = style}))
