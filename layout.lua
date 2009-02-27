@@ -35,12 +35,16 @@ local UnitIsTapped = _G.UnitIsTapped
 local UnitIsTappedByPlayer = _G.UnitIsTappedByPlayer
 
 --- Configuration parameters
+local uiscale = 0.85
+local screen_height = 1050
 local group_left, group_top = 10, -25
 local statusbartexture = "Interface\\AddOns\\oUF_Quaiche\\Minimalist"
-local border_size = 1
+local aura_size = 20
+local border_size = screen_height / (tonumber(GetCVar("UISCALE") or 0.85) * 768) -- screen_height / ui scale * 768 (normalized height) = 1 pixel in logical units
 local party_spacing = 3
 local raid_spacing = 3
 local raid_group_spacing = 6
+local aura_size = 20
 local backdrop = {
 	bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
 	tile = true,
@@ -185,13 +189,13 @@ local style = function(settings, self, unit)
 	-- Healthbar
 	local hp = CreateFrame("StatusBar", nil, self)
 	hp:SetStatusBarTexture(statusbartexture)
-	hp:SetStatusBarColor( unpack(oUF.colors.class["WARRIOR"]) )
 	hp:SetHeight(hp_height)
 	hp:SetPoint("TOP", self, "TOP", 0, -border_size)
 	hp:SetPoint("LEFT", self, "LEFT", border_size, 0)
 	hp:SetPoint("RIGHT", self, "RIGHT", -border_size, 0)
 	hp.colorDisconnected = true
 	hp.colorClass = true
+	hp.colorClassPet = true
 	if unit and string.match(unit,"target") then 
 		hp.colorTapping = true
 		hp.colorReaction = true
@@ -280,13 +284,14 @@ local style = function(settings, self, unit)
 		end
 	end
 
+	-- Auras
 	if unit == "player" then
 		local debuffs = CreateFrame("Frame", nil, self)
 		debuffs:SetHeight(height)
 		debuffs:SetWidth(width)
 		debuffs:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -2)
 		debuffs.showDebuffType = true
-		debuffs.size = 18
+		debuffs.size = aura_size
 		debuffs.initialAnchor = "TOPLEFT"
 		debuffs.spacing = 2
 		debuffs["growth-x"] = "RIGHT"
@@ -294,13 +299,12 @@ local style = function(settings, self, unit)
 		self.Debuffs = debuffs
 	end
 
-	-- Player debuffs
 	if unit == "target" then
 		local buffs = CreateFrame("Frame", nil, self)
 		buffs:SetHeight(height)
 		buffs:SetWidth(width/2)
 		buffs:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -2)
-		buffs.size = 18
+		buffs.size = aura_size
 		buffs.initialAnchor = "TOPLEFT"
 		buffs["growth-x"] = "RIGHT"
 		buffs["growth-y"] = "DOWN"
@@ -312,7 +316,7 @@ local style = function(settings, self, unit)
 		debuffs:SetWidth(width/2)
 		debuffs:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 0, -2)
 		debuffs.showDebuffType = true
-		debuffs.size = 18
+		debuffs.size = aura_size
 		debuffs.initialAnchor = "TOPRIGHT"
 		debuffs.spacing = 2
 		debuffs["growth-x"] = "LEFT"
