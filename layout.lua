@@ -59,9 +59,6 @@ local backdrop = {
 	},
 }
 
-local isBarFaderEnabled = select(4, GetAddOnInfo("oUF_BarFader"))
-local isFaderEnabled = select(4, GetAddOnInfo("oUF_Fader"))
-
 do --[[ Custom colors ]]
 	for powerType, value in pairs(oUF.colors.power) do
 		if powerType == "RAGE" then
@@ -324,31 +321,6 @@ local style = function(settings, self, unit)
 		self.Debuffs = debuffs
 	end
 
-	-- Support for oUF_BarFader and oUF_Fader
-	if isFaderEnabled then
-		oUF.Fader:RegisterCondition("PlayerCasting", 
-		function(self, unit)
-			return UnitCastingInfo("player") ~= nil
-		end, 
-		"UNIT_SPELLCAST_START:UNIT_SPELLCAST_FAILED:UNIT_SPELLCAST_STOP:UNIT_SPELLCAST_CHANNEL_START:UNIT_SPELLCAST_CHANNEL_UPDATE:UNIT_SPELLCAST_CHANNEL_STOP:UNIT_SPELLCAST_CHANNEL_STOP"
-		)
-	end
-	if unit == "player" or unit=="pet" then
-		if isBarFaderEnabled then
-			self.BarFade = true
-			self.BarFadeMinAlpha = 0
-		elseif isFaderEnabled then
-			self.NormalAlpha = 0
-			self.Fader = {
-				[1] = {PlayerTarget=1, Combat=1, PlayerCasting=1},
-				[2] = {notUnitMaxHealth = 0.7, notUnitMaxMana = 0.7},
-				[3] = {notPlayerMaxHealth=0.7, notPlayerMaxMana=0.7},
-				-- [1] = {notUnitMaxHealth=1, notUnitMaxMana=1, PlayerTarget=1, notPlayerMaxHealth=1, notPlayerMaxMana=1 },
-				-- [3] = {notCombat = 0.5},
-			}
-		end
-	end
-
 	-- Support for oUF_AFK
 	local afkIcon = hp:CreateTexture(nil, "OVERLAY")
 	afkIcon:SetPoint("CENTER", name, "CENTER")
@@ -494,14 +466,53 @@ for i = 1, NUM_RAID_GROUPS do
 	raidGroup:Show()
 end
 
---[[ Event handler function for special stuff ]]--
-local function EventHandler(self, event)
-	if(InCombatLockdown()) then
-		self:RegisterEvent('PLAYER_REGEN_ENABLED')
-	else
-		self:UnregisterEvent('PLAYER_REGEN_DISABLED')
+-- Private frame for events and whatnot
+local frame = CreateFrame('Frame')
 
-		-- Hide party in raid
+-- General purpose event dispatcher
+frame:SetScript("OnEvent", function(self, event, ...) 
+	if self[event] then 
+		return self[event](self, event, ...) 
+	end 
+end)
+
+-- Timer function for the alpha checker
+local total = 0
+local freq = 0.15
+frame:SetScript("OnUpdate", function(self, elapsed)
+  total = total + elapsed
+    if total >= freq then
+			self:CheckFrameAlphas()
+      total = 0
+    end
+end)
+
+-- Alpha condition check functions
+local UnitMaxHealth = function(unit) return unit and not UnitIsDeadOrGhost(unit) and UnitHealth(unit) == UnitHealthMax(unit) end
+local UnitMaxMana = function(unit) return unit and not UnitIsDeadOrGhost(unit) and UnitMana(unit) == UnitManaMax(unit) end
+local UnitCasting = function(unit) return UnitCastingInfo(unit) ~= nil end
+	
+function frame:CheckFrameAlphas()
+	if UnitMaxHealth("player") and UnitMaxMana("player") and
+		UnitMaxHealth("pet") and UnitMaxMana("pet") and
+		not UnitCasting("player") and
+		not UnitExists("target") and
+		not InCombatLockdown() and
+		not UnitIsAFK("player") then
+			oUF.units.player:SetAlpha(0)
+			oUF.units.pet:SetAlpha(0)
+	else
+		oUF.units.player:SetAlpha(1)
+		oUF.units.pet:SetAlpha(1)
+	end
+end
+
+-- Check Party Visibility Helper function and event handlers
+function frame:CheckPartyVisibility() 
+	if(InCombatLockdown()) then
+		self:RegisterEvent('PLAYER_REGEN_ENABLED') -- defer this until OOC
+	else
+		self:UnregisterEvent('PLAYER_REGEN_DISABLED') -- just in case
 		if GetNumRaidMembers() > 0 then
 			party:Hide()
 		else
@@ -509,12 +520,16 @@ local function EventHandler(self, event)
 		end
 	end
 end
+frame.PLAYER_LOGIN = frame.CheckPartyVisibility
+frame.RAID_ROSTER_UPDATE = frame.CheckPartyVisibility
+frame.PARTY_LEADER_CHANGED = frame.CheckPartyVisibility
+frame.PARTY_MEMBERS_CHANGED = frame.CheckPartyVisibility
+frame.PLAYER_REGEN_ENABLED = frame.CheckPartyVisibility
+frame.PLAYER_REGEN_DISABLED = frame.CheckPartyVisibility
 
-local eventFrame = CreateFrame('Frame')
-eventFrame:RegisterEvent('PLAYER_LOGIN')
-eventFrame:RegisterEvent('RAID_ROSTER_UPDATE')
-eventFrame:RegisterEvent('PARTY_LEADER_CHANGED')
-eventFrame:RegisterEvent('PARTY_MEMBERS_CHANGED')
-eventFrame:SetScript('OnEvent', EventHandler)
-
+-- Register all events
+frame:RegisterEvent('PLAYER_LOGIN')
+frame:RegisterEvent('RAID_ROSTER_UPDATE')
+frame:RegisterEvent('PARTY_LEADER_CHANGED')
+frame:RegisterEvent('PARTY_MEMBERS_CHANGED')
 
