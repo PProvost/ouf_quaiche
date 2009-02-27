@@ -40,7 +40,7 @@ local screen_height = 1050
 local group_left, group_top = 10, -25
 local statusbartexture = "Interface\\AddOns\\oUF_Quaiche\\Minimalist"
 local aura_size = 20
-local border_size = screen_height / (tonumber(GetCVar("UISCALE") or 0.85) * 768) -- screen_height / ui scale * 768 (normalized height) = 1 pixel in logical units
+local border_size = screen_height / (uiscale * 768) -- screen_height / ui scale * 768 (normalized height) = 1 pixel in logical units
 local party_spacing = 3
 local raid_spacing = 3
 local raid_group_spacing = 6
