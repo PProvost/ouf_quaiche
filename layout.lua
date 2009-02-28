@@ -83,8 +83,11 @@ local menu = function(self)
 end
 
 local updateName = function(self, event, unit)
-	if(self.unit == unit) then
-		local nameString = UnitName(unit)
+	if unit and self.unit == unit then
+		local nameString = UnitName(unit) or "Unknown"
+		if UnitIsAFK(unit) then
+			nameString = "|cFF990000" .. nameString .. "|r"
+		end
 		if unit=="target" or unit=="player" then -- prepend the name with level and classification
 			local suffix = ""
 			local level = UnitLevel(unit)
@@ -214,6 +217,10 @@ local style = function(settings, self, unit)
 	self.Name = name
 	self.UNIT_NAME_UPDATE = updateName
 
+	-- Fire updateName for AFK and DND changes
+	self.PLAYER_FLAGS_CHANGED = updateName
+	self:RegisterEvent("PLAYER_FLAGS_CHANGED")
+
 	-- Healthbar text
 	local hpp = hp:CreateFontString(nil, "OVERLAY")
 	hpp:SetPoint("RIGHT", -2, 0)
@@ -320,14 +327,6 @@ local style = function(settings, self, unit)
 		debuffs["growth-y"] = "DOWN"
 		self.Debuffs = debuffs
 	end
-
-	-- Support for oUF_AFK
-	local afkIcon = hp:CreateTexture(nil, "OVERLAY")
-	afkIcon:SetPoint("CENTER", name, "CENTER")
-	afkIcon:SetWidth(16)
-	afkIcon:SetHeight(16)
-	afkIcon:Hide()
-	self.AFKIcon = afkIcon
 
 	-- Support for oUF_Banzai
 	if unit == "player" then
@@ -532,4 +531,3 @@ frame:RegisterEvent('PLAYER_LOGIN')
 frame:RegisterEvent('RAID_ROSTER_UPDATE')
 frame:RegisterEvent('PARTY_LEADER_CHANGED')
 frame:RegisterEvent('PARTY_MEMBERS_CHANGED')
-
