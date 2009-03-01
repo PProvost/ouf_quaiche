@@ -83,23 +83,25 @@ local menu = function(self)
 end
 
 local updateName = function(self, event, unit)
-	if unit and self.unit == unit then
-		local nameString = UnitName(unit) or "Unknown"
-		if UnitIsAFK(unit) then
-			nameString = "|cFF990000" .. nameString .. "|r"
-		end
-		if unit=="target" or unit=="player" then -- prepend the name with level and classification
-			local suffix = ""
-			local level = UnitLevel(unit)
-			if level == -1 then level = "??" end
-			local classification = UnitClassification(unit)
-			if classification == "rareelite" then suffix = "++" end
-			if classification == "rare" then suffix = "r" end
-			if classification == "elite" then suffix = "+" end
-			nameString = " |cFF999999" .. level .. suffix .. "|r " .. nameString
-		end
-		self.Name:SetText(nameString)
+	if self.unit ~= unit then return end
+
+	local nameString = UnitName(unit) or "Unknown"
+	if UnitIsAFK(unit) then
+		nameString = "|cFF990000" .. nameString .. "|r"
 	end
+
+	if unit=="target" or unit=="player" then -- prepend the name with level and classification
+		local suffix = ""
+		local level = UnitLevel(unit)
+		if level == -1 then level = "??" end
+		local classification = UnitClassification(unit)
+		if classification == "rareelite" then suffix = "++" end
+		if classification == "rare" then suffix = "r" end
+		if classification == "elite" then suffix = "+" end
+		nameString = " |cFF999999" .. level .. suffix .. "|r " .. nameString
+	end
+
+	self.Name:SetText(nameString)
 end
 
 local updateRIcon = function(self, event)
@@ -147,10 +149,8 @@ local updateHealth = function(self, event, unit, bar, min, max)
 
 	if(UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) or not UnitIsConnected(unit)) then
 		self.Name:SetTextColor(.6, .6, .6)
-		-- self.Power:SetStatusBarColor(.6, .6, .6) -- TODO can I delete this?
-	else
-		self:UNIT_NAME_UPDATE(event, unit)
 	end
+	updateName(self, event, unit)
 end
 
 local PostUpdatePower = function(self, event, unit, bar, min, max)
@@ -215,11 +215,9 @@ local style = function(settings, self, unit)
 	name:SetFontObject(GameFontNormalSmall)
 	name:SetTextColor(1, 1, 1)
 	self.Name = name
-	self.UNIT_NAME_UPDATE = updateName
-
-	-- Fire updateName for AFK and DND changes
-	self.PLAYER_FLAGS_CHANGED = updateName
-	self:RegisterEvent("PLAYER_FLAGS_CHANGED")
+	self:RegisterEvent("UNIT_NAME_UPDATE", updateName)
+	self:RegisterEvent("UNIT_LEVEL", updateName)
+	self:RegisterEvent("PLAYER_FLAGS_CHANGED", updateName) -- Fire updateName for AFK and DND changes
 
 	-- Healthbar text
 	local hpp = hp:CreateFontString(nil, "OVERLAY")
@@ -309,6 +307,8 @@ local style = function(settings, self, unit)
 		buffs:SetWidth(width/2)
 		buffs:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -2)
 		buffs.size = aura_size
+		buffs.num = 15
+		-- buffs.filter = "RAID"
 		buffs.initialAnchor = "TOPLEFT"
 		buffs["growth-x"] = "RIGHT"
 		buffs["growth-y"] = "DOWN"
@@ -321,6 +321,8 @@ local style = function(settings, self, unit)
 		debuffs:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 0, -2)
 		debuffs.showDebuffType = true
 		debuffs.size = aura_size
+		debuffs.onlyShowPlayer = true
+		debuffs.num = 15
 		debuffs.initialAnchor = "TOPRIGHT"
 		debuffs.spacing = 2
 		debuffs["growth-x"] = "LEFT"
@@ -488,7 +490,9 @@ end)
 
 -- Alpha condition check functions
 local UnitMaxHealth = function(unit) return unit and not UnitIsDeadOrGhost(unit) and UnitHealth(unit) == UnitHealthMax(unit) end
-local UnitMaxMana = function(unit) return unit and not UnitIsDeadOrGhost(unit) and UnitMana(unit) == UnitManaMax(unit) end
+local UnitMaxMana = function(unit) 
+	return unit and not UnitIsDeadOrGhost(unit) and ((UnitPowerType(unit) ~= 1 and UnitPower(unit) == UnitPowerMax(unit)) or (UnitPower(unit) == 0))
+end
 local UnitCasting = function(unit) return UnitCastingInfo(unit) ~= nil end
 	
 function frame:CheckFrameAlphas()
