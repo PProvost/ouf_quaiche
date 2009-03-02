@@ -263,6 +263,7 @@ local style = function(settings, self, unit)
 	
 	-- Latency display on player only
 	if unit == "player" then
+		local cb = self.Castbar
 		cb.SafeZone = cb:CreateTexture(nil, 'BORDER')
 		cb.SafeZone:SetTexture(statusbartexture)
 		cb.SafeZone:SetVertexColor(0.75, 0.75, 0.35, 0.35)
