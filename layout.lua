@@ -39,7 +39,7 @@ local uiscale = 0.85
 local screen_height = 1050
 local group_left, group_top = 10, -25
 local statusbartexture = "Interface\\AddOns\\oUF_Quaiche\\Minimalist"
-local aura_size = 20
+local aura_size = 18
 local border_size = screen_height / (uiscale * 768) -- screen_height / ui scale * 768 (normalized height) = 1 pixel in logical units
 local party_spacing = 3
 local raid_spacing = 3
@@ -228,7 +228,7 @@ local style = function(settings, self, unit)
 	hpp:SetTextColor(1, 1, 1)
 	hp.value = hpp
 
-	-- Hide raid and party pets
+	-- Hide health text on raid and party pets
 	if not unit and self:GetAttribute("unitsuffix") == "pet" then
 		hpp:Hide()
 		name:SetPoint("RIGHT", hp, "RIGHT", -2)
@@ -255,20 +255,17 @@ local style = function(settings, self, unit)
 		cb:SetStatusBarColor(.75, .75, .35, 0.65)
 		cb:SetAllPoints(pp)
 		cb:SetFrameStrata("HIGH")
-
-		-- Latency display on player only
-		if unit == "player" then
-			cb.SafeZone = cb:CreateTexture(nil, 'BORDER')
-			cb.SafeZone:SetTexture(statusbartexture)
-			cb.SafeZone:SetVertexColor(0.75, 0.75, 0.35, 0.35)
-		end
-
 		self.Castbar = cb
-	end
 
-	if unit == "player" or unit=="target" then
 		self.Castbar.Text = self.Castbar:CreateFontString(nil, 'OVERLAY', 'GameFontHighlightSmallLeft')
 		self.Castbar.Text:SetPoint('CENTER', self.Castbar)
+	end
+	
+	-- Latency display on player only
+	if unit == "player" then
+		cb.SafeZone = cb:CreateTexture(nil, 'BORDER')
+		cb.SafeZone:SetTexture(statusbartexture)
+		cb.SafeZone:SetVertexColor(0.75, 0.75, 0.35, 0.35)
 	end
 
 	-- Combo Points
@@ -535,3 +532,4 @@ frame:RegisterEvent('PLAYER_LOGIN')
 frame:RegisterEvent('RAID_ROSTER_UPDATE')
 frame:RegisterEvent('PARTY_LEADER_CHANGED')
 frame:RegisterEvent('PARTY_MEMBERS_CHANGED')
+
