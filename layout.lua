@@ -306,7 +306,7 @@ local style = function(settings, self, unit)
 		buffs:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -2)
 		buffs.size = aura_size
 		buffs.num = 15
-		-- buffs.filter = "RAID"
+		buffs.filter = "HELPFUL|RAID|CANCELABLE" -- Still not sure about this
 		buffs.initialAnchor = "TOPLEFT"
 		buffs["growth-x"] = "RIGHT"
 		buffs["growth-y"] = "DOWN"
