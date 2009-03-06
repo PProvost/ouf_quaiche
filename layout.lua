@@ -39,12 +39,11 @@ local uiscale = 0.85
 local screen_height = 1050
 local group_left, group_top = 10, -25
 local statusbartexture = "Interface\\AddOns\\oUF_Quaiche\\Minimalist"
-local aura_size = 18
+local aura_size = 14
 local border_size = screen_height / (uiscale * 768) -- screen_height / ui scale * 768 (normalized height) = 1 pixel in logical units
 local party_spacing = 3
 local raid_spacing = 3
 local raid_group_spacing = 6
-local aura_size = 20
 local backdrop = {
 	bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
 	tile = true,
@@ -306,7 +305,7 @@ local style = function(settings, self, unit)
 		buffs:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -2)
 		buffs.size = aura_size
 		buffs.num = 15
-		buffs.filter = "HELPFUL|RAID|CANCELABLE" -- Still not sure about this
+		-- buffs.filter = "HELPFUL|CANCELABLE" -- Still not sure about this
 		buffs.initialAnchor = "TOPLEFT"
 		buffs["growth-x"] = "RIGHT"
 		buffs["growth-y"] = "DOWN"
