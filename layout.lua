@@ -312,7 +312,7 @@ local style = function(settings, self, unit)
 	end
 
 	-- Support for oUF_Banzai
-	if unit == "player" then
+	if unit=="player" or unit=="target" then
 		self.ignoreBanzai = true
 	end
 
