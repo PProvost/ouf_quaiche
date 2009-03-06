@@ -307,26 +307,9 @@ local style = function(settings, self, unit)
 		debuffs.spacing = 2
 		debuffs["growth-x"] = "RIGHT"
 		debuffs["growth-y"] = "UP"
+		if unit == "target" then debuffs.onlyShowPlayer = true end
 		self.Debuffs = debuffs
 	end
-
-	--[[
-	if unit == "target" then
-		local debuffs = CreateFrame("Frame", nil, self)
-		debuffs:SetHeight(height)
-		debuffs:SetWidth(width/2)
-		debuffs:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 0, -2)
-		debuffs.showDebuffType = true
-		debuffs.size = 14
-		debuffs.onlyShowPlayer = true
-		debuffs.num = 15
-		debuffs.initialAnchor = "TOPRIGHT"
-		debuffs.spacing = 2
-		debuffs["growth-x"] = "LEFT"
-		debuffs["growth-y"] = "DOWN"
-		self.Debuffs = debuffs
-	end
-	]]
 
 	-- Support for oUF_Banzai
 	if unit == "player" then
