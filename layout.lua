@@ -39,10 +39,9 @@ local uiscale = 0.85
 local screen_height = 1050
 local group_left, group_top = 10, -25
 local statusbartexture = "Interface\\AddOns\\oUF_Quaiche\\Minimalist"
-local aura_size = 14
 local border_size = screen_height / (uiscale * 768) -- screen_height / ui scale * 768 (normalized height) = 1 pixel in logical units
-local party_spacing = 3
-local raid_spacing = 3
+local party_spacing = 2
+local raid_spacing = 2
 local raid_group_spacing = 6
 local backdrop = {
 	bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
@@ -284,28 +283,13 @@ local style = function(settings, self, unit)
 	end
 
 	-- Auras
-	if unit == "player" then
-		local debuffs = CreateFrame("Frame", nil, self)
-		debuffs:SetHeight(height)
-		debuffs:SetWidth(width)
-		debuffs:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -2)
-		debuffs.showDebuffType = true
-		debuffs.size = aura_size
-		debuffs.initialAnchor = "TOPLEFT"
-		debuffs.spacing = 2
-		debuffs["growth-x"] = "RIGHT"
-		debuffs["growth-y"] = "DOWN"
-		self.Debuffs = debuffs
-	end
-
-	if unit == "target" then
+	if unit == "player" or unit =="target" then
 		local buffs = CreateFrame("Frame", nil, self)
-		buffs:SetHeight(height)
-		buffs:SetWidth(width/2)
+		buffs.size = (width/12)-2   -- 12 per row
+		buffs.num = 36 -- 3 rows
+		buffs:SetHeight((buffs.size+2)*3)
+		buffs:SetWidth(width)
 		buffs:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -2)
-		buffs.size = aura_size
-		buffs.num = 15
-		-- buffs.filter = "HELPFUL|CANCELABLE" -- Still not sure about this
 		buffs.initialAnchor = "TOPLEFT"
 		buffs["growth-x"] = "RIGHT"
 		buffs["growth-y"] = "DOWN"
@@ -313,11 +297,27 @@ local style = function(settings, self, unit)
 		self.Buffs = buffs
 
 		local debuffs = CreateFrame("Frame", nil, self)
+		debuffs.size = (width/12)-2 -- 12 per row
+		debuffs.num = 24 -- 2 rows
+		debuffs:SetHeight((buffs.size+2)*3)
+		debuffs:SetWidth(width)
+		debuffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 2)
+		debuffs.showDebuffType = true
+		debuffs.initialAnchor = "BOTTOMLEFT"
+		debuffs.spacing = 2
+		debuffs["growth-x"] = "RIGHT"
+		debuffs["growth-y"] = "UP"
+		self.Debuffs = debuffs
+	end
+
+	--[[
+	if unit == "target" then
+		local debuffs = CreateFrame("Frame", nil, self)
 		debuffs:SetHeight(height)
 		debuffs:SetWidth(width/2)
 		debuffs:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 0, -2)
 		debuffs.showDebuffType = true
-		debuffs.size = aura_size
+		debuffs.size = 14
 		debuffs.onlyShowPlayer = true
 		debuffs.num = 15
 		debuffs.initialAnchor = "TOPRIGHT"
@@ -326,6 +326,7 @@ local style = function(settings, self, unit)
 		debuffs["growth-y"] = "DOWN"
 		self.Debuffs = debuffs
 	end
+	]]
 
 	-- Support for oUF_Banzai
 	if unit == "player" then
@@ -406,13 +407,13 @@ end
 local setmetatable = _G.setmetatable
 oUF:RegisterStyle("Quaiche_Full", setmetatable({
 	["initial-width"] = 200,
-	["initial-height"] = 32,
+	["initial-height"] = 36,
 	["powerbar-height"] = 8,
 }, {__call = style}))
 
 oUF:RegisterStyle("Quaiche_Half", setmetatable({
 	["initial-width"] = 95,
-	["initial-height"] = 20,
+	["initial-height"] = 18,
 	["powerbar-height"] = 4,
 }, {__call = style}))
 
@@ -433,10 +434,11 @@ oUF:Spawn("player"):SetPoint("CENTER", UIParent, -180, -145)
 oUF:Spawn("target"):SetPoint("CENTER", UIParent, 180, -145)
 
 oUF:SetActiveStyle("Quaiche_Half")
-oUF:Spawn("focus"):SetPoint("BOTTOMRIGHT", oUF.units.player, "TOPRIGHT", 0, 5)
-oUF:Spawn("pet"):SetPoint("BOTTOMLEFT", oUF.units.player, "TOPLEFT", 0, 5)
-oUF:Spawn("targettarget"):SetPoint("BOTTOMRIGHT", oUF.units.target, "TOPRIGHT", 0, 5)
-oUF:Spawn("focustarget"):SetPoint("BOTTOMLEFT", oUF.units.target, "TOPLEFT", 0, 5)
+oUF:Spawn("focus"):SetPoint("TOPRIGHT", oUF.units.player, "TOPLEFT", -2, 0)
+oUF:Spawn("pet"):SetPoint("BOTTOMRIGHT", oUF.units.player, "BOTTOMLEFT", -2, 0)
+
+oUF:Spawn("focustarget"):SetPoint("TOPLEFT", oUF.units.target, "TOPRIGHT", 2, 0)
+oUF:Spawn("targettarget"):SetPoint("BOTTOMLEFT", oUF.units.target, "BOTTOMRIGHT", 2, 0)
 
 oUF:SetActiveStyle("Quaiche_Party") 
 local party = oUF:Spawn("header", "oUF_Party")
