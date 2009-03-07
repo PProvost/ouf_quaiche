@@ -391,18 +391,19 @@ local setmetatable = _G.setmetatable
 oUF:RegisterStyle("Quaiche_Full", setmetatable({
 	["initial-width"] = 200,
 	["initial-height"] = 36,
-	["powerbar-height"] = 8,
+	["powerbar-height"] = 10,
 }, {__call = style}))
 
 oUF:RegisterStyle("Quaiche_Half", setmetatable({
 	["initial-width"] = 95,
 	["initial-height"] = 18,
-	["powerbar-height"] = 4,
+	["powerbar-height"] = 2,
 }, {__call = style}))
 
 oUF:RegisterStyle("Quaiche_Party", setmetatable({
 	["initial-width"] = 125,
 	["initial-height"] = 25,
+	["powerbar-height"] = 5,
 }, {__call = style}))
 
 oUF:RegisterStyle("Quaiche_Raid", setmetatable({
