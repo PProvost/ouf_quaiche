@@ -57,6 +57,11 @@ local backdrop = {
 	},
 }
 
+--[[ Addon frame for events and global storage ]]--
+
+oUF_Quaiche = CreateFrame('Frame')
+oUF_Quaiche:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, event, ...) end end)
+
 do --[[ Custom colors ]]
 	for powerType, value in pairs(oUF.colors.power) do
 		if powerType == "RAGE" then
@@ -69,6 +74,7 @@ do --[[ Custom colors ]]
 	end
 end
 
+--[[ Right click menu handler ]]--
 local menu = function(self)
 	local unit = self.unit:sub(1, -2)
 	local cunit = self.unit:gsub("(.)", string.upper, 1)
@@ -166,7 +172,7 @@ local PostCreateAuraIcon = function(self, button)
 	button.icon:SetTexCoord(.07, .93, .07, .93)
 end
 
-local style = function(settings, self, unit)
+local UnitFactory = function(settings, self, unit)
 	-- Stash some settings into locals
 	local width = settings["initial-width"]
 	local height = settings["initial-height"]
@@ -392,25 +398,25 @@ oUF:RegisterStyle("Quaiche_Full", setmetatable({
 	["initial-width"] = 240,
 	["initial-height"] = 36,
 	["powerbar-height"] = 10,
-}, {__call = style}))
+}, {__call = UnitFactory}))
 
 oUF:RegisterStyle("Quaiche_Small", setmetatable({
 	["initial-width"] = 95,
 	["initial-height"] = 18,
 	["powerbar-height"] = 2,
-}, {__call = style}))
+}, {__call = UnitFactory}))
 
 oUF:RegisterStyle("Quaiche_Party", setmetatable({
 	["initial-width"] = 125,
 	["initial-height"] = 25,
 	["powerbar-height"] = 5,
-}, {__call = style}))
+}, {__call = UnitFactory}))
 
 oUF:RegisterStyle("Quaiche_Raid", setmetatable({
 	["initial-width"] = 115,
 	["initial-height"] = 18,
 	["powerbar-height"] = 2,
-}, {__call = style}))
+}, {__call = UnitFactory}))
 
 --[[ STANDARD FRAMES ]]--
 oUF:SetActiveStyle("Quaiche_Full") 
@@ -443,6 +449,7 @@ partypets:Show()
 --[[ RAID FRAMES ]]--
 
 oUF:SetActiveStyle("Quaiche_Raid")
+oUF_Quaiche.raidGroups = {}
 local raid = {}
 local x,y = group_left, group_top
 for i = 1, NUM_RAID_GROUPS do
@@ -451,7 +458,7 @@ for i = 1, NUM_RAID_GROUPS do
 	raidGroup:SetAttribute("showraid", true)
 	raidGroup:SetAttribute("yOffset", -raid_spacing)
 	raidGroup:SetAttribute("point", "TOP")
-	table.insert(raid, raidGroup)
+	table.insert(oUF_Quaiche.raidGroups, raidGroup)
 
 	if i == 1 then
 		raidGroup:SetPoint("TOPLEFT", group_left, group_top)
@@ -473,21 +480,10 @@ raidpets:SetAttribute("yOffset", -raid_spacing)
 raidpets:SetAttribute("groupFilter", "1,2,3,4,5,6,7,8")
 raidpets:Show()
 
---[[ Private frame for events and whatnot ]]--
-
-local frame = CreateFrame('Frame')
-
--- General purpose event dispatcher
-frame:SetScript("OnEvent", function(self, event, ...) 
-	if self[event] then 
-		return self[event](self, event, ...) 
-	end 
-end)
-
 -- Timer function for the alpha checker
 local total = 0
 local freq = 0.15
-frame:SetScript("OnUpdate", function(self, elapsed)
+oUF_Quaiche:SetScript("OnUpdate", function(self, elapsed)
   total = total + elapsed
     if total >= freq then
 			self:CheckFrameAlphas()
@@ -502,7 +498,7 @@ local UnitMaxMana = function(unit)
 end
 local UnitCasting = function(unit) return UnitCastingInfo(unit) ~= nil end
 	
-function frame:CheckFrameAlphas()
+function oUF_Quaiche:CheckFrameAlphas()
 	if UnitMaxHealth("player") and UnitMaxMana("player") and
 		UnitMaxHealth("pet") and UnitMaxMana("pet") and
 		not UnitCasting("player") and
@@ -518,7 +514,7 @@ function frame:CheckFrameAlphas()
 end
 
 -- Check Party Visibility Helper function and event handlers
-function frame:CheckPartyVisibility() 
+function oUF_Quaiche:CheckPartyVisibility() 
 	if(InCombatLockdown()) then
 		self:RegisterEvent('PLAYER_REGEN_ENABLED') -- defer this until OOC
 	else
@@ -532,16 +528,16 @@ function frame:CheckPartyVisibility()
 		end
 	end
 end
-frame.PLAYER_LOGIN = frame.CheckPartyVisibility
-frame.RAID_ROSTER_UPDATE = frame.CheckPartyVisibility
-frame.PARTY_LEADER_CHANGED = frame.CheckPartyVisibility
-frame.PARTY_MEMBERS_CHANGED = frame.CheckPartyVisibility
-frame.PLAYER_REGEN_ENABLED = frame.CheckPartyVisibility
-frame.PLAYER_REGEN_DISABLED = frame.CheckPartyVisibility
+oUF_Quaiche.PLAYER_LOGIN = oUF_Quaiche.CheckPartyVisibility
+oUF_Quaiche.RAID_ROSTER_UPDATE = oUF_Quaiche.CheckPartyVisibility
+oUF_Quaiche.PARTY_LEADER_CHANGED = oUF_Quaiche.CheckPartyVisibility
+oUF_Quaiche.PARTY_MEMBERS_CHANGED = oUF_Quaiche.CheckPartyVisibility
+oUF_Quaiche.PLAYER_REGEN_ENABLED = oUF_Quaiche.CheckPartyVisibility
+oUF_Quaiche.PLAYER_REGEN_DISABLED = oUF_Quaiche.CheckPartyVisibility
 
 -- Register all events
-frame:RegisterEvent('PLAYER_LOGIN')
-frame:RegisterEvent('RAID_ROSTER_UPDATE')
-frame:RegisterEvent('PARTY_LEADER_CHANGED')
-frame:RegisterEvent('PARTY_MEMBERS_CHANGED')
+oUF_Quaiche:RegisterEvent('PLAYER_LOGIN')
+oUF_Quaiche:RegisterEvent('RAID_ROSTER_UPDATE')
+oUF_Quaiche:RegisterEvent('PARTY_LEADER_CHANGED')
+oUF_Quaiche:RegisterEvent('PARTY_MEMBERS_CHANGED')
 
