@@ -210,7 +210,7 @@ local style = function(settings, self, unit)
 	name:SetPoint("BOTTOM", hp, 'BOTTOM', 0, 2)
 	name:SetJustifyH("LEFT")
 	name:SetJustifyV("MIDDLE")
-	name:SetFontObject(GameFontNormalSmall)
+	name:SetFontObject((unit=="player" or unit=="target") and GameFontNormal or GameFontNormalSmall)
 	name:SetTextColor(1, 1, 1)
 	self.Name = name
 	self:RegisterEvent("UNIT_NAME_UPDATE", updateName)
