@@ -42,7 +42,7 @@ local statusbartexture = "Interface\\AddOns\\oUF_Quaiche\\Minimalist"
 local border_size = screen_height / (uiscale * 768) -- screen_height / ui scale * 768 (normalized height) = 1 pixel in logical units
 local party_spacing = 2
 local raid_spacing = 2
-local raid_group_spacing = 6
+local raid_group_spacing = 8
 local backdrop = {
 	bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
 	tile = true,
@@ -227,7 +227,7 @@ local style = function(settings, self, unit)
 	hp.value = hpp
 
 	-- Hide health text on raid and party pets
-	if not unit and self:GetAttribute("unitsuffix") == "pet" then
+	if settings["hide-health-text"] then
 		hpp:Hide()
 		name:SetPoint("RIGHT", hp, "RIGHT", -2)
 	end
@@ -389,12 +389,12 @@ end
 
 local setmetatable = _G.setmetatable
 oUF:RegisterStyle("Quaiche_Full", setmetatable({
-	["initial-width"] = 200,
+	["initial-width"] = 240,
 	["initial-height"] = 36,
 	["powerbar-height"] = 10,
 }, {__call = style}))
 
-oUF:RegisterStyle("Quaiche_Half", setmetatable({
+oUF:RegisterStyle("Quaiche_Small", setmetatable({
 	["initial-width"] = 95,
 	["initial-height"] = 18,
 	["powerbar-height"] = 2,
@@ -414,43 +414,67 @@ oUF:RegisterStyle("Quaiche_Raid", setmetatable({
 
 --[[ STANDARD FRAMES ]]--
 oUF:SetActiveStyle("Quaiche_Full") 
-oUF:Spawn("player"):SetPoint("CENTER", UIParent, -180, -145)
-oUF:Spawn("target"):SetPoint("CENTER", UIParent, 180, -145)
+oUF:Spawn("player"):SetPoint("CENTER", UIParent, -150, -145)
+oUF:Spawn("target"):SetPoint("CENTER", UIParent, 150, -145)
 
-oUF:SetActiveStyle("Quaiche_Half")
+oUF:SetActiveStyle("Quaiche_Small")
 oUF:Spawn("focus"):SetPoint("TOPRIGHT", oUF.units.player, "TOPLEFT", -2, 0)
 oUF:Spawn("pet"):SetPoint("BOTTOMRIGHT", oUF.units.player, "BOTTOMLEFT", -2, 0)
-
 oUF:Spawn("focustarget"):SetPoint("TOPLEFT", oUF.units.target, "TOPRIGHT", 2, 0)
 oUF:Spawn("targettarget"):SetPoint("BOTTOMLEFT", oUF.units.target, "BOTTOMRIGHT", 2, 0)
+
+--[[ PARTY FRAMES ]]--
 
 oUF:SetActiveStyle("Quaiche_Party") 
 local party = oUF:Spawn("header", "oUF_Party")
 party:SetPoint("TOPLEFT", group_left, group_top)
-party:SetAttribute("template", "oUF_QuaichePartyPets")
 party:SetAttribute("showParty", true)
 party:SetAttribute("yOffset", -party_spacing)
 party:Show()
 
+local partypets = oUF:Spawn("header", "oUF_PartyPets", "SecureGroupPetHeaderTemplate")
+partypets:SetPoint("TOPLEFT", party, "TOPRIGHT", party_spacing, 0)
+partypets:SetAttribute("showParty", true)
+partypets:SetAttribute("showRaid", false)
+partypets:SetAttribute("yOffset", -party_spacing)
+partypets:SetAttribute("hide-health-text", true)
+partypets:Show()
+
+--[[ RAID FRAMES ]]--
+
 oUF:SetActiveStyle("Quaiche_Raid")
 local raid = {}
+local x,y = group_left, group_top
 for i = 1, NUM_RAID_GROUPS do
 	local raidGroup = oUF:Spawn("header", "oUF_Raid" .. i)
 	raidGroup:SetAttribute("groupFilter", tostring(i))
 	raidGroup:SetAttribute("showraid", true)
 	raidGroup:SetAttribute("yOffset", -raid_spacing)
 	raidGroup:SetAttribute("point", "TOP")
-	raidGroup:SetAttribute("template", "oUF_QuaicheRaidPets")
 	table.insert(raid, raidGroup)
+
 	if i == 1 then
 		raidGroup:SetPoint("TOPLEFT", group_left, group_top)
+	elseif mod(i,2) == 0 then
+		raidGroup:SetPoint("TOPLEFT", raid[i-1], "TOPRIGHT", raid_group_spacing, 0)
 	else
-		raidGroup:SetPoint("TOPLEFT", raid[i-1], "BOTTOMLEFT", 0, -raid_group_spacing)	
+		raidGroup:SetPoint("TOPLEFT", raid[i-2], "BOTTOMLEFT", 0, -raid_group_spacing)	
 	end
+
 	raidGroup:Show()
 end
 
--- Private frame for events and whatnot
+local raidpets = oUF:Spawn("header", "oUF_PartyPets", "SecureGroupPetHeaderTemplate")
+raidpets:SetPoint("TOPLEFT", raid[7], "BOTTOMLEFT", 0, -raid_group_spacing)
+raidpets:SetAttribute("showParty", false)
+raidpets:SetAttribute("showRaid", true)
+raidpets:SetAttribute("hide-health-text", true)
+raidpets:SetAttribute("yOffset", -raid_spacing)
+raidpets:SetAttribute("groupFilter", "1,2,3,4,5,6,7,8")
+raidpets:Show()
+
+--[[ Private frame for events and whatnot ]]--
+
 local frame = CreateFrame('Frame')
 
 -- General purpose event dispatcher
@@ -501,8 +525,10 @@ function frame:CheckPartyVisibility()
 		self:UnregisterEvent('PLAYER_REGEN_DISABLED') -- just in case
 		if GetNumRaidMembers() > 0 then
 			party:Hide()
+			partypets:Hide()
 		else
 			party:Show()
+			partypets:Show()
 		end
 	end
 end
