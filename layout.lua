@@ -74,6 +74,36 @@ do --[[ Custom colors ]]
 	end
 end
 
+local function ShortValue(value)
+	if(value >= 1e6) then
+		return ('%.1fm'):format(value / 1e6):gsub('%.?0+([km])$', '%1')
+	elseif(value >= 1e4) then
+		return ('%.1fk'):format(value / 1e3):gsub('%.?0+([km])$', '%1')
+	else
+		return value
+	end
+end
+
+--[[ Custom Tags ]]
+oUF.Tags["[afk]"] = function(u) return UnitIsAFK(u) and "|cFF990000" or "" end
+oUF.TagEvents["[afk]"] = "UNIT_NAME_UPDATE UNIT_LEVEL PLAYER_FLAGS_CHANGED"
+
+oUF.Tags["[shorthealth]"] = function(u) return ShortValue(UnitHealth(u)) end
+oUF.TagEvents["[shorthealth]"] = "UNIT_HEALTH UNIT_MAXHEALTH"
+
+oUF.Tags["[smarthealth]"] = function(u) return (UnitHealthMax(u) > UnitHealth(u)) and "-"..oUF.Tags["[missinghp]"](u) or oUF.Tags["[shorthealth]"](u) end
+oUF.TagEvents["[smarthealth]"] = "UNIT_HEALTH UNIT_MAXHEALTH"
+
+oUF.Tags["[qhealth]"] = function(unit)
+	local dead, offline = oUF.Tags["[dead]"](unit), oUF.Tags["[offline]"](unit)
+	if dead then return dead end
+	if offline then return offline end
+	if unit=="pet" or unit=="focus" or unit=="targettarget" or unit=="focustarget" then return oUF.Tags["[perhp]"](unit).."%" end
+	if unit=="target" then return oUF.Tags["[shorthealth]"](unit) .. " (" .. oUF.Tags["[perhp]"](unit) .. "%)" end
+	return oUF.Tags["[smarthealth]"](unit)
+end
+oUF.TagEvents["[qhealth]"] = "UNIT_HEALTH UNIT_MAXHEALTH"
+
 --[[ Right click menu handler ]]--
 local menu = function(self)
 	local unit = self.unit:sub(1, -2)
@@ -86,28 +116,6 @@ local menu = function(self)
 	end
 end
 
-local updateName = function(self, event, unit)
-	if self.unit ~= unit then return end
-
-	local nameString = UnitName(unit) or "Unknown"
-	if UnitIsAFK(unit) then
-		nameString = "|cFF990000" .. nameString .. "|r"
-	end
-
-	if unit=="target" or unit=="player" then -- prepend the name with level and classification
-		local suffix = ""
-		local level = UnitLevel(unit)
-		if level == -1 then level = "??" end
-		local classification = UnitClassification(unit)
-		if classification == "rareelite" then suffix = "++" end
-		if classification == "rare" then suffix = "r" end
-		if classification == "elite" then suffix = "+" end
-		nameString = " |cFF999999" .. level .. suffix .. "|r " .. nameString
-	end
-
-	self.Name:SetText(nameString)
-end
-
 local updateRIcon = function(self, event)
 	local index = GetRaidTargetIndex(self.unit)
 	if(index) then
@@ -117,17 +125,8 @@ local updateRIcon = function(self, event)
 	end
 end
 
-local function ShortValue(value)
-	if(value >= 1e6) then
-		return ('%.1fm'):format(value / 1e6):gsub('%.?0+([km])$', '%1')
-	elseif(value >= 1e4) then
-		return ('%.1fk'):format(value / 1e3):gsub('%.?0+([km])$', '%1')
-	else
-		return value
-	end
-end
-
-local updateHealth = function(self, event, unit, bar, min, max)
+--[[
+local PostUpdateHealth = function(self, event, unit, bar, min, max)
 	if(UnitIsDead(unit)) then
 		bar:SetValue(0)
 		bar.value:SetText("Dead")
@@ -154,8 +153,8 @@ local updateHealth = function(self, event, unit, bar, min, max)
 	if(UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) or not UnitIsConnected(unit)) then
 		self.Name:SetTextColor(.6, .6, .6)
 	end
-	updateName(self, event, unit)
 end
+]]
 
 local PostUpdatePower = function(self, event, unit, bar, min, max)
 	if(min == 0 or max == 0 or not UnitIsConnected(unit)) then
@@ -205,32 +204,32 @@ local UnitFactory = function(settings, self, unit)
 		hp.colorReaction = true
 	end
 	self.Health = hp
-	self.PostUpdateHealth = updateHealth
 
-	-- Unit name
-	local name = hp:CreateFontString(nil, "OVERLAY")
-	name:SetPoint("LEFT", hp, "LEFT", 2, 0)
-	local right_offset = (unit=="player" or unit=="target") and 65 or 33
-	name:SetPoint("RIGHT", hp, "RIGHT", -right_offset, 0)
-	name:SetPoint("TOP", hp, "TOP", 0, -2)
-	name:SetPoint("BOTTOM", hp, 'BOTTOM', 0, 2)
-	name:SetJustifyH("LEFT")
-	name:SetJustifyV("MIDDLE")
-	name:SetFontObject((unit=="player" or unit=="target") and GameFontNormal or GameFontNormalSmall)
-	name:SetTextColor(1, 1, 1)
-	self.Name = name
-	self:RegisterEvent("UNIT_NAME_UPDATE", updateName)
-	self:RegisterEvent("UNIT_LEVEL", updateName)
-	self:RegisterEvent("PLAYER_FLAGS_CHANGED", updateName) -- Fire updateName for AFK and DND changes
-
-	-- Healthbar text
+	-- Health text
 	local hpp = hp:CreateFontString(nil, "OVERLAY")
 	hpp:SetPoint("RIGHT", -2, 0)
 	hpp:SetWidth(unit=="target" and 100 or 50)
 	hpp:SetJustifyH("RIGHT")
 	hpp:SetFontObject(GameFontNormalSmall)
 	hpp:SetTextColor(1, 1, 1)
-	hp.value = hpp
+	self:Tag(hpp, "[qhealth]")
+
+	-- Unit name
+	local right_offset = (unit=="player" or unit=="target") and 65 or 33
+	local name = hp:CreateFontString(nil, "OVERLAY")
+	name:SetPoint("LEFT", hp, "LEFT", 2, 0)
+	name:SetPoint("RIGHT", hp, "RIGHT", -right_offset, 0)
+	name:SetPoint("TOP", hp, "TOP", 0, -2)
+	name:SetPoint("BOTTOM", hp, 'BOTTOM', 0, 2)
+	name:SetJustifyH("LEFT"); name:SetJustifyV("MIDDLE")
+	name:SetTextColor(1, 1, 1)
+	if unit == "player" or unit == "target" then
+		name:SetFontObject(GameFontNormal)
+		self:Tag(name, "[difficulty][smartlevel]|r [afk][name]|r")
+	else
+		name:SetFontObject(GameFontNormalSmall)
+		self:Tag(name, "[afk][name]|r")
+	end
 
 	-- Hide health text on raid and party pets
 	if settings["hide-health-text"] then
