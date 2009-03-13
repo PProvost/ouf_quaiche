@@ -62,19 +62,26 @@ local backdrop = {
 oUF_Quaiche = CreateFrame('Frame')
 oUF_Quaiche:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, event, ...) end end)
 
-do --[[ Custom colors ]]
-	for powerType, value in pairs(oUF.colors.power) do
-		if powerType == "RAGE" then
-			oUF.colors.power[powerType] = { 0.75, 0.45, 0.25 }
-		elseif powerType == "ENERGY" then
-			oUF.colors.power[powerType] = { 1.0, 1.0, 0.45 }
-		elseif powerType == "MANA" then
-			oUF.colors.power[powerType] = { 0.25, 0.45, 0.75 }
-		end
+local debugf = tekDebug and tekDebug:GetFrame("oUF_Quaiche")
+local function Debug(msg) if debugf then debugf:AddMessage(tostring(msg)) end end
+
+--[[ Custom colors ]]
+for powerType, value in pairs(oUF.colors.power) do
+	if powerType == "RAGE" then
+		oUF.colors.power[powerType] = { 0.75, 0.45, 0.25 }
+	elseif powerType == "ENERGY" then
+		oUF.colors.power[powerType] = { 1.0, 1.0, 0.45 }
+	elseif powerType == "MANA" then
+		oUF.colors.power[powerType] = { 0.25, 0.45, 0.75 }
 	end
 end
 
-local function ShortValue(value)
+--[[ Custom Tags ]]
+oUF.Tags["[afk]"] = function(u) return UnitIsAFK(u) and "|cFF990000" or "" end
+oUF.TagEvents["[afk]"] = "UNIT_NAME_UPDATE UNIT_LEVEL PLAYER_FLAGS_CHANGED"
+
+oUF.Tags["[shorthealth]"] = function(u) 
+	local value = UnitHealth(u)
 	if(value >= 1e6) then
 		return ('%.1fm'):format(value / 1e6):gsub('%.?0+([km])$', '%1')
 	elseif(value >= 1e4) then
@@ -83,12 +90,6 @@ local function ShortValue(value)
 		return value
 	end
 end
-
---[[ Custom Tags ]]
-oUF.Tags["[afk]"] = function(u) return UnitIsAFK(u) and "|cFF990000" or "" end
-oUF.TagEvents["[afk]"] = "UNIT_NAME_UPDATE UNIT_LEVEL PLAYER_FLAGS_CHANGED"
-
-oUF.Tags["[shorthealth]"] = function(u) return ShortValue(UnitHealth(u)) end
 oUF.TagEvents["[shorthealth]"] = "UNIT_HEALTH UNIT_MAXHEALTH"
 
 oUF.Tags["[smarthealth]"] = function(u) return (UnitHealthMax(u) > UnitHealth(u)) and "-"..oUF.Tags["[missinghp]"](u) or oUF.Tags["[shorthealth]"](u) end
@@ -116,46 +117,6 @@ local menu = function(self)
 	end
 end
 
-local updateRIcon = function(self, event)
-	local index = GetRaidTargetIndex(self.unit)
-	if(index) then
-		self.RIcon:SetText(ICON_LIST[index].."22|t")
-	else
-		self.RIcon:SetText()
-	end
-end
-
---[[
-local PostUpdateHealth = function(self, event, unit, bar, min, max)
-	if(UnitIsDead(unit)) then
-		bar:SetValue(0)
-		bar.value:SetText("Dead")
-	elseif(UnitIsGhost(unit)) then
-		bar:SetValue(0)
-		bar.value:SetText("Ghost")
-	elseif(not UnitIsConnected(unit)) then
-		bar.value:SetText("Offline")
-	else
-		if unit=="pet" or unit=="focus" or unit=="targettarget" or unit=="focustarget" then
-			bar.value:SetFormattedText("%d%%", (min/max)*100)
-		elseif unit=="target" then
-			bar.value:SetFormattedText("%s (%d%%)", ShortValue(min), (min/max)*100)
-		else
-			local c = max - min
-			if(c > 0) then
-				bar.value:SetFormattedText("-%d", c)
-			else
-				bar.value:SetText(ShortValue(max))
-			end
-		end
-	end
-
-	if(UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) or not UnitIsConnected(unit)) then
-		self.Name:SetTextColor(.6, .6, .6)
-	end
-end
-]]
-
 local PostUpdatePower = function(self, event, unit, bar, min, max)
 	if(min == 0 or max == 0 or not UnitIsConnected(unit)) then
 		bar:SetValue(0)
@@ -175,8 +136,11 @@ local UnitFactory = function(settings, self, unit)
 	-- Stash some settings into locals
 	local width = settings["initial-width"]
 	local height = settings["initial-height"]
+	local hideHealthText = settings["hide-health-text"]
 	local pp_height = settings["powerbar-height"] or 6
 	local hp_height = height - (pp_height + 2*border_size)
+
+	Debug(hideHealthText)
 
 	-- General menu and event setup
 	self.menu = menu
@@ -232,7 +196,7 @@ local UnitFactory = function(settings, self, unit)
 	end
 
 	-- Hide health text on raid and party pets
-	if settings["hide-health-text"] then
+	if hideHealthText then
 		hpp:Hide()
 		name:SetPoint("RIGHT", hp, "RIGHT", -2)
 	end
@@ -315,6 +279,7 @@ local UnitFactory = function(settings, self, unit)
 		if unit == "target" then debuffs.onlyShowPlayer = true end
 		self.Debuffs = debuffs
 	end
+	self.PostCreateAuraIcon = PostCreateAuraIcon
 
 	-- Support for oUF_Banzai
 	if unit=="player" or unit=="target" then
@@ -353,14 +318,10 @@ local UnitFactory = function(settings, self, unit)
 	self.Leader = leader
 
 	-- Raid icon
-	local raid_icon = hp:CreateFontString(nil, "OVERLAY")
+	local raid_icon = hp:CreateTexture(nil, "OVERLAY")
 	raid_icon:SetPoint("CENTER", hp, "TOP")
-	raid_icon:SetJustifyH("CENTER")
-	raid_icon:SetFontObject(GameFontNormalSmall)
-	raid_icon:SetTextColor(1, 1, 1)
+	raid_icon:SetHeight(16); raid_icon:SetWidth(16)
 	self.RIcon = raid_icon
-	self:RegisterEvent("RAID_TARGET_UPDATE", updateRIcon)
-	table.insert(self.__elements, updateRIcon)
 
 	if unit == "player" then -- player gets resting and combat
 		local resting = pp:CreateTexture(nil, "OVERLAY")
@@ -386,8 +347,6 @@ local UnitFactory = function(settings, self, unit)
 		self.inRangeAlpha = 1
 		self.outsideRangeAlpha = .5
 	end
-
-	self.PostCreateAuraIcon = PostCreateAuraIcon
 
 	return self
 end
