@@ -125,12 +125,14 @@ local PostUpdatePower = function(self, event, unit, bar, min, max)
 	end
 end
 
+--[[
 local PostCreateAuraIcon = function(self, button)
 	local count = button.count
 	count:ClearAllPoints()
 	count:SetPoint"BOTTOM"
 	button.icon:SetTexCoord(.07, .93, .07, .93)
 end
+]]
 
 local UnitFactory = function(settings, self, unit)
 	-- Stash some settings into locals
@@ -279,7 +281,7 @@ local UnitFactory = function(settings, self, unit)
 		if unit == "target" then debuffs.onlyShowPlayer = true end
 		self.Debuffs = debuffs
 	end
-	self.PostCreateAuraIcon = PostCreateAuraIcon
+	-- self.PostCreateAuraIcon = PostCreateAuraIcon
 
 	-- Support for oUF_Banzai
 	if unit=="player" or unit=="target" then
@@ -319,9 +321,9 @@ local UnitFactory = function(settings, self, unit)
 
 	-- Raid icon
 	local raid_icon = hp:CreateTexture(nil, "OVERLAY")
-	raid_icon:SetPoint("CENTER", hp, "TOP")
+	raid_icon:SetPoint("CENTER", hp, "CENTER")
 	raid_icon:SetHeight(16); raid_icon:SetWidth(16)
-	self.RIcon = raid_icon
+	self.RaidIcon = raid_icon
 
 	if unit == "player" then -- player gets resting and combat
 		local resting = pp:CreateTexture(nil, "OVERLAY")
@@ -371,9 +373,16 @@ oUF:RegisterStyle("Quaiche_Party", setmetatable({
 }, {__call = UnitFactory}))
 
 oUF:RegisterStyle("Quaiche_Raid", setmetatable({
-	["initial-width"] = 115,
+	["initial-width"] = 100,
 	["initial-height"] = 18,
 	["powerbar-height"] = 2,
+}, {__call = UnitFactory}))
+
+oUF:RegisterStyle("Quaiche_RaidPets", setmetatable({
+	["initial-width"] = 75,
+	["initial-height"] = 18,
+	["powerbar-height"] = 2,
+	["hide-health-text"] = true
 }, {__call = UnitFactory}))
 
 --[[ STANDARD FRAMES ]]--
@@ -407,17 +416,14 @@ partypets:Show()
 --[[ RAID FRAMES ]]--
 
 oUF:SetActiveStyle("Quaiche_Raid")
-oUF_Quaiche.raidGroups = {}
 local raid = {}
-local x,y = group_left, group_top
 for i = 1, NUM_RAID_GROUPS do
 	local raidGroup = oUF:Spawn("header", "oUF_Raid" .. i)
 	raidGroup:SetAttribute("groupFilter", tostring(i))
 	raidGroup:SetAttribute("showraid", true)
 	raidGroup:SetAttribute("yOffset", -raid_spacing)
 	raidGroup:SetAttribute("point", "TOP")
-	table.insert(oUF_Quaiche.raidGroups, raidGroup)
-
+	table.insert(raid, raidGroup)
 	if i == 1 then
 		raidGroup:SetPoint("TOPLEFT", group_left, group_top)
 	elseif mod(i,2) == 0 then
@@ -425,15 +431,14 @@ for i = 1, NUM_RAID_GROUPS do
 	else
 		raidGroup:SetPoint("TOPLEFT", raid[i-2], "BOTTOMLEFT", 0, -raid_group_spacing)	
 	end
-
 	raidGroup:Show()
 end
 
+oUF:SetActiveStyle("Quaiche_RaidPets")
 local raidpets = oUF:Spawn("header", "oUF_PartyPets", "SecureGroupPetHeaderTemplate")
 raidpets:SetPoint("TOPLEFT", raid[7], "BOTTOMLEFT", 0, -raid_group_spacing)
 raidpets:SetAttribute("showParty", false)
 raidpets:SetAttribute("showRaid", true)
-raidpets:SetAttribute("hide-health-text", true)
 raidpets:SetAttribute("yOffset", -raid_spacing)
 raidpets:SetAttribute("groupFilter", "1,2,3,4,5,6,7,8")
 raidpets:Show()
