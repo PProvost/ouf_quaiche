@@ -56,6 +56,17 @@ local backdrop = {
 		bottom = border_size,
 	},
 }
+local runeloadcolors = {
+	[1] = {0.77, 0.12, 0.23},
+	[2] = {0.77, 0.12, 0.23},
+	[3] = {0.4, 0.8, 0.1},
+	[4] = {0.4, 0.8, 0.1},
+	[5] = {0, 0.4, 0.7},
+	[6] = {0, 0.4, 0.7},
+}
+
+-- Other locals
+local _, player_class = UnitClass('player')
 
 --[[ Addon frame for events and global storage ]]--
 
@@ -125,14 +136,26 @@ local PostUpdatePower = function(self, event, unit, bar, min, max)
 	end
 end
 
---[[
+local ColorThreat = function(self, event, unit)
+	if self.unit ~= unit then return end
+	local status = UnitThreatSituation(self.unit)
+	if status > 0 then
+		if unit == "player" then
+			local r, g, b = GetThreatStatusColor(status)
+			self.Health:SetStatusBarColor(r,g,b)
+		elseif status > 1 then
+			self.Health:SetStatusBarColor(1,0,0)
+		end
+	end
+end
+
 local PostCreateAuraIcon = function(self, button)
+	-- Minor readjustment of the stackcount position, and the texture (to remove the border)
 	local count = button.count
 	count:ClearAllPoints()
 	count:SetPoint"BOTTOM"
 	button.icon:SetTexCoord(.07, .93, .07, .93)
 end
-]]
 
 local UnitFactory = function(settings, self, unit)
 	-- Stash some settings into locals
@@ -283,9 +306,9 @@ local UnitFactory = function(settings, self, unit)
 	end
 	-- self.PostCreateAuraIcon = PostCreateAuraIcon
 
-	-- Support for oUF_Banzai
-	if unit=="player" or unit=="target" then
-		self.ignoreBanzai = true
+	if not(unit and string.match(unit,"target")) then 
+		self.PostUpdateHealth = ColorThreat -- This will let us recolor the bar after oUF colors it
+		self:RegisterEvent('UNIT_THREAT_SITUATION_UPDATE', ColorThreat) -- To catch it even earlier than damage
 	end
 
 	-- Support for oUF_CombatFeedback
@@ -310,6 +333,28 @@ local UnitFactory = function(settings, self, unit)
 	self.DebuffHighlight = dbh
 	self.DebuffHighlightUseTexture = true -- use the spell texture for the debuff
 	self.DebuffHighlightFilter = true -- only show it if I can remove it
+
+	-- Support for oUF_RuneBar
+	if unit=="player" and IsAddOnLoaded('oUF_RuneBar') and player_class == 'DEATHKNIGHT' then
+		local half_height = pp_height/2
+		local rb_width = (width-7*border_size)/6
+		pp:SetHeight(half_height)
+		self.RuneBar = {}
+		for i = 1, 6 do
+			self.RuneBar[i] = CreateFrame('StatusBar', nil, self)
+			if(i == 1) then
+				self.RuneBar[i]:SetPoint('TOPLEFT', pp, 'BOTTOMLEFT', 0, 0)
+			else
+				self.RuneBar[i]:SetPoint('LEFT', self.RuneBar[i-1], 'RIGHT', border_size, 0)
+			end
+			self.RuneBar[i]:SetStatusBarTexture(statusbartexture)
+			self.RuneBar[i]:SetStatusBarColor(unpack(runeloadcolors[i]))
+			self.RuneBar[i]:SetHeight(half_height)
+			self.RuneBar[i]:SetParent(pp)
+			self.RuneBar[i]:SetWidth(rb_width)
+			self.RuneBar[i]:SetMinMaxValues(0, 1)
+		end
+	end
 
 	-- Leader icon
 	local leader = hp:CreateTexture(nil, "OVERLAY")
