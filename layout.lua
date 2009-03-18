@@ -56,7 +56,7 @@ local backdrop = {
 		bottom = border_size,
 	},
 }
-local runeloadcolors = {
+local runeColors = {
 	[1] = {0.77, 0.12, 0.23},
 	[2] = {0.77, 0.12, 0.23},
 	[3] = {0.4, 0.8, 0.1},
@@ -88,7 +88,7 @@ for powerType, value in pairs(oUF.colors.power) do
 end
 
 --[[ Custom Tags ]]
-oUF.Tags["[afk]"] = function(u) return UnitIsAFK(u) and "|cFF990000" or "" end
+oUF.Tags["[afk]"] = function(u) return UnitIsAFK(u) and "|cFF990000" or nil end
 oUF.TagEvents["[afk]"] = "UNIT_NAME_UPDATE UNIT_LEVEL PLAYER_FLAGS_CHANGED"
 
 oUF.Tags["[shorthealth]"] = function(u) 
@@ -348,7 +348,7 @@ local UnitFactory = function(settings, self, unit)
 				self.RuneBar[i]:SetPoint('LEFT', self.RuneBar[i-1], 'RIGHT', border_size, 0)
 			end
 			self.RuneBar[i]:SetStatusBarTexture(statusbartexture)
-			self.RuneBar[i]:SetStatusBarColor(unpack(runeloadcolors[i]))
+			self.RuneBar[i]:SetStatusBarColor(unpack(runeColors[i]))
 			self.RuneBar[i]:SetHeight(half_height)
 			self.RuneBar[i]:SetParent(pp)
 			self.RuneBar[i]:SetWidth(rb_width)
@@ -444,7 +444,6 @@ oUF:Spawn("focustarget"):SetPoint("TOPLEFT", oUF.units.target, "TOPRIGHT", 2, 0)
 oUF:Spawn("targettarget"):SetPoint("BOTTOMLEFT", oUF.units.target, "BOTTOMRIGHT", 2, 0)
 
 --[[ PARTY FRAMES ]]--
-
 oUF:SetActiveStyle("Quaiche_Party") 
 local party = oUF:Spawn("header", "oUF_Party")
 party:SetPoint("TOPLEFT", group_left, group_top)
@@ -452,7 +451,7 @@ party:SetAttribute("showParty", true)
 party:SetAttribute("yOffset", -party_spacing)
 party:Show()
 
-oUF:SetActiveStyle("Quaiche_Party") 
+oUF:SetActiveStyle("Quaiche_PartyPets") 
 local partypets = oUF:Spawn("header", "oUF_PartyPets", "SecureGroupPetHeaderTemplate")
 partypets:SetPoint("TOPLEFT", party, "TOPRIGHT", party_spacing, 0)
 partypets:SetAttribute("showParty", true)
@@ -462,7 +461,6 @@ partypets:SetAttribute("hide-health-text", true)
 partypets:Show()
 
 --[[ RAID FRAMES ]]--
-
 oUF:SetActiveStyle("Quaiche_Raid")
 oUF_Quaiche.raidGroups = {}
 local raid = {}
