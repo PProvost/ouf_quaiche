@@ -21,12 +21,12 @@ You must download and install oUF to use this layout:
 
 In addition, this layout support the following oUF Extensions:
 * "oUF_AFKIcon":http://wow.curse.com/downloads/wow-addons/details/ouf_afkicon.aspx
-* "oUF_Banzai":http://www.curse.com/downloads/wow-addons/details/o-uf_banzai.aspx
 * "oUF_CombatFeedback":http://www.wowinterface.com/downloads/info8769-oUFCombatFeedback.html
 * "oUF_DebuffHighlight":http://www.wowinterface.com/downloads/info8812-oUFDebuffHighlight.html
 * "oUF_DruidHots":http://wow.curse.com/downloads/wow-addons/details/ouf_druidhots.aspx
 * "oUF_IncomingHeals":http://www.curse.com/downloads/wow-addons/details/o-uf_incoming-heals.aspx
 * "oUF_ReadyCheck":http://www.wowinterface.com/downloads/info9856-oUFReadyCheck.html
+* "oUF_RuneBar":http://www.wowinterface.com/downloads/info12616-oUFRuneBar.html
 
 h2. Bugs, Suggestions or Comments
 
