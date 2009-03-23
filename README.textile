@@ -35,4 +35,7 @@ h2. Bugs, Suggestions or Comments
 
 Please file any bugs, suggestions or comments as a ticket on the "CurseForge project":http://wow.curseforge.com/projects/ouf_quaiche/tickets/
 
+h2. Credits
+
+Haste of course for his amazing framework that makes all this possible. Tekkub, Caellian, Ammo, p3Lim, and many, many others for tips tricks and pointers along the way.
 
