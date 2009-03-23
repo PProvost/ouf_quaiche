@@ -195,19 +195,21 @@ local UnitFactory = function(settings, self, unit)
 	self.Health = hp
 
 	-- Health text
-	local hpp = hp:CreateFontString(nil, "OVERLAY")
-	hpp:SetPoint("RIGHT", -2, 0)
-	hpp:SetWidth(unit=="target" and 100 or 50)
-	hpp:SetJustifyH("RIGHT")
-	hpp:SetFontObject(GameFontNormalSmall)
-	hpp:SetTextColor(1, 1, 1)
-	self:Tag(hpp, "[qhealth]")
+	if not hideHealthText then
+		local hpp = hp:CreateFontString(nil, "OVERLAY")
+		hpp:SetPoint("RIGHT", -2, 0)
+		hpp:SetWidth(unit=="target" and 100 or 50)
+		hpp:SetJustifyH("RIGHT")
+		hpp:SetFontObject(GameFontNormalSmall)
+		hpp:SetTextColor(1, 1, 1)
+		self:Tag(hpp, "[qhealth]")
+	end
 
 	-- Unit name
 	local right_offset = (unit=="player" or unit=="target") and 65 or 33
 	local name = hp:CreateFontString(nil, "OVERLAY")
 	name:SetPoint("LEFT", hp, "LEFT", 2, 0)
-	name:SetPoint("RIGHT", hp, "RIGHT", -right_offset, 0)
+	name:SetPoint("RIGHT", hp, "RIGHT", hideHealthText and -2 or -right_offset, 0)
 	name:SetPoint("TOP", hp, "TOP", 0, -2)
 	name:SetPoint("BOTTOM", hp, 'BOTTOM', 0, 2)
 	name:SetJustifyH("LEFT"); name:SetJustifyV("MIDDLE")
@@ -218,12 +220,6 @@ local UnitFactory = function(settings, self, unit)
 	else
 		name:SetFontObject(GameFontNormalSmall)
 		self:Tag(name, "[afk][name]|r")
-	end
-
-	-- Hide health text on raid and party pets
-	if hideHealthText then
-		hpp:Hide()
-		name:SetPoint("RIGHT", hp, "RIGHT", -2)
 	end
 
 	-- Powerbar
@@ -303,12 +299,14 @@ local UnitFactory = function(settings, self, unit)
 		debuffs["growth-y"] = "UP"
 		if unit == "target" then debuffs.onlyShowPlayer = true end
 		self.Debuffs = debuffs
+
+		self.PostCreateAuraIcon = PostCreateAuraIcon
 	end
-	-- self.PostCreateAuraIcon = PostCreateAuraIcon
 
 	if not(unit and string.match(unit,"target")) then 
 		self.PostUpdateHealth = ColorThreat -- This will let us recolor the bar after oUF colors it
-		self:RegisterEvent('UNIT_THREAT_SITUATION_UPDATE', ColorThreat) -- To catch it even earlier than damage
+		-- self:RegisterEvent('UNIT_THREAT_SITUATION_UPDATE', ColorThreat) -- To catch it even earlier than damage
+		self:RegisterEvent('UNIT_THREAT_LIST_UPDATE', ColorThreat) -- To catch it even earlier than damage
 	end
 
 	-- Support for oUF_CombatFeedback
@@ -365,7 +363,11 @@ local UnitFactory = function(settings, self, unit)
 
 	-- Raid icon
 	local raid_icon = hp:CreateTexture(nil, "OVERLAY")
-	raid_icon:SetPoint("CENTER", hp, "CENTER")
+	if unit == "player" or unit =="target" then
+		raid_icon:SetPoint("CENTER", hp, "TOP")
+	else
+		raid_icon:SetPoint("CENTER", hp, "CENTER")
+	end
 	raid_icon:SetHeight(16); raid_icon:SetWidth(16)
 	self.RaidIcon = raid_icon
 
@@ -506,7 +508,7 @@ local UnitMaxHealth = function(unit) return unit and not UnitIsDeadOrGhost(unit)
 local UnitMaxMana = function(unit) 
 	return unit and not UnitIsDeadOrGhost(unit) and ((UnitPowerType(unit) ~= 1 and UnitPower(unit) == UnitPowerMax(unit)) or (UnitPower(unit) == 0))
 end
-local UnitCasting = function(unit) return UnitCastingInfo(unit) ~= nil end
+local UnitCasting = function(unit) return UnitCastingInfo(unit) ~= nil or oUF_Quaiche.casting end
 	
 function oUF_Quaiche:CheckFrameAlphas()
 	if UnitMaxHealth("player") and UnitMaxMana("player") and
@@ -545,9 +547,18 @@ oUF_Quaiche.PARTY_MEMBERS_CHANGED = oUF_Quaiche.CheckPartyVisibility
 oUF_Quaiche.PLAYER_REGEN_ENABLED = oUF_Quaiche.CheckPartyVisibility
 oUF_Quaiche.PLAYER_REGEN_DISABLED = oUF_Quaiche.CheckPartyVisibility
 
+function oUF_Quaiche:UNIT_SPELLCAST_CHANNEL_STOP()
+	self.casting = false
+end
+
+function oUF_Quaiche:UNIT_SPELLCAST_CHANNEL_START()
+	self.casting = true
+end
+
 -- Register all events
 oUF_Quaiche:RegisterEvent('PLAYER_LOGIN')
 oUF_Quaiche:RegisterEvent('RAID_ROSTER_UPDATE')
 oUF_Quaiche:RegisterEvent('PARTY_LEADER_CHANGED')
 oUF_Quaiche:RegisterEvent('PARTY_MEMBERS_CHANGED')
-
+oUF_Quaiche:RegisterEvent('UNIT_SPELLCAST_CHANNEL_START')
+oUF_Quaiche:RegisterEvent('UNIT_SPELLCAST_CHANNEL_STOP')
