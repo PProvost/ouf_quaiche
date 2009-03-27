@@ -43,6 +43,8 @@ local border_size = screen_height / (uiscale * 768) -- screen_height / ui scale 
 local party_spacing = 2
 local raid_spacing = 2
 local raid_group_spacing = 8
+local raid_width = 100
+local healer_mode_raid_top = 85
 local backdrop = {
 	bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
 	tile = true,
@@ -72,6 +74,59 @@ local _, player_class = UnitClass('player')
 
 oUF_Quaiche = CreateFrame('Frame')
 oUF_Quaiche:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, event, ...) end end)
+
+function oUF_Quaiche:RAID_ROSTER_UPDATE()
+	self:CheckPartyVisibility()
+
+	if self.healerMode then
+		local max = 0
+		for i = 1,MAX_RAID_MEMBERS do
+			local subgroup = select(3, GetRaidRosterInfo(i))
+			if  subgroup > max then max = subgroup end
+		end
+
+		local total_width = max*raid_width + (max-1)*raid_spacing
+		local left = total_width / 2
+
+		self.raidGroups[1]:SetPoint("TOPLEFT", UIParent, "TOP", -left, -healer_mode_raid_top)
+	end
+end
+
+function oUF_Quaiche:SetHealerLayout()
+	for i=1,NUM_RAID_GROUPS do
+		local raidGroup = self.raidGroups[i]
+		if i == 1 then
+			raidGroup:SetPoint("TOPLEFT", group_left, group_top)
+		else
+			raidGroup:SetPoint("TOPLEFT", self.raidGroups[i-1], "TOPRIGHT", raid_group_spacing, 0)
+		end
+	end
+	
+	self.raidPets:ClearAllPoints()
+	self.raidPets:SetPoint("TOP", UIParent, "TOP", 0, -(healer_mode_raid_top + 100))
+	self.raidPets:SetAttribute("maxColumns", 8)
+	self.raidPets:SetAttribute("unitsPerColumn", 5)
+
+	self:RAID_ROSTER_UPDATE()
+end
+
+function oUF_Quaiche:SetNormalLayout()
+	for i = 1, NUM_RAID_GROUPS do
+		local raidGroup = self.raidGroups[i]
+		if i == 1 then
+			raidGroup:SetPoint("TOPLEFT", group_left, group_top)
+		elseif mod(i,5) == 1 then
+			raidGroup:SetPoint("TOPLEFT", self.raidGroups[i-5], "TOPRIGHT", raid_group_spacing, 0)
+		else
+			raidGroup:SetPoint("TOPLEFT", self.raidGroups[i-1], "BOTTOMLEFT", 0, -raid_group_spacing)
+		end
+	end
+
+	self.raidPets:ClearAllPoints()
+	self.raidPets:SetPoint("TOPLEFT", oUF_Quaiche.raidGroups[5], "BOTTOMLEFT", 0, -raid_group_spacing)
+	self.raidPets:SetAttribute("maxColumns", 1)
+	self.raidPets:SetAttribute("unitsPerColumn", 5)
+end
 
 local debugf = tekDebug and tekDebug:GetFrame("oUF_Quaiche")
 local function Debug(msg) if debugf then debugf:AddMessage(tostring(msg)) end end
@@ -128,14 +183,6 @@ local menu = function(self)
 	end
 end
 
-local PostUpdatePower = function(self, event, unit, bar, min, max)
-	if(min == 0 or max == 0 or not UnitIsConnected(unit)) then
-		bar:SetValue(0)
-	elseif(UnitIsDead(unit) or UnitIsGhost(unit)) then
-		bar:SetValue(0)
-	end
-end
-
 local ColorThreat = function(self, event, unit)
 	if self.unit ~= unit then return end
 	local status = UnitThreatSituation(self.unit)
@@ -147,6 +194,15 @@ local ColorThreat = function(self, event, unit)
 			self.Health:SetStatusBarColor(1,0,0)
 		end
 	end
+end
+
+local PostUpdatePower = function(self, event, unit, bar, min, max)
+	if(min == 0 or max == 0 or not UnitIsConnected(unit)) then
+		bar:SetValue(0)
+	elseif(UnitIsDead(unit) or UnitIsGhost(unit)) then
+		bar:SetValue(0)
+	end
+	ColorThreat(self, event, unit)
 end
 
 local PostCreateAuraIcon = function(self, button)
@@ -303,10 +359,11 @@ local UnitFactory = function(settings, self, unit)
 		self.PostCreateAuraIcon = PostCreateAuraIcon
 	end
 
+	-- Threat coloring
 	if not(unit and string.match(unit,"target")) then 
-		self.PostUpdateHealth = ColorThreat -- This will let us recolor the bar after oUF colors it
-		-- self:RegisterEvent('UNIT_THREAT_SITUATION_UPDATE', ColorThreat) -- To catch it even earlier than damage
+		self.PostUpdateHealth = ColorThreat -- This will let us recolor the bar after oUF colors it|
 		self:RegisterEvent('UNIT_THREAT_LIST_UPDATE', ColorThreat) -- To catch it even earlier than damage
+		self:RegisterEvent('UNIT_THREAT_SITUATION_UPDATE', ColorThreat)
 	end
 
 	-- Support for oUF_CombatFeedback
@@ -422,7 +479,7 @@ oUF:RegisterStyle("Quaiche_PartyPets", setmetatable({
 }, {__call = UnitFactory}))
 
 oUF:RegisterStyle("Quaiche_Raid", setmetatable({
-	["initial-width"] = 100,
+	["initial-width"] = raid_width,
 	["initial-height"] = 18,
 	["powerbar-height"] = 2,
 }, {__call = UnitFactory}))
@@ -472,25 +529,20 @@ for i = 1, NUM_RAID_GROUPS do
 	raidGroup:SetAttribute("showraid", true)
 	raidGroup:SetAttribute("yOffset", -raid_spacing)
 	table.insert(oUF_Quaiche.raidGroups, raidGroup)
-	if i == 1 then
-		raidGroup:SetPoint("TOPLEFT", group_left, group_top)
-	elseif mod(i,5) == 1 then
-		raidGroup:SetPoint("TOPLEFT", oUF_Quaiche.raidGroups[i-5], "TOPRIGHT", raid_group_spacing, 0)
-	else
-		raidGroup:SetPoint("TOPLEFT", oUF_Quaiche.raidGroups[i-1], "BOTTOMLEFT", 0, -raid_group_spacing)
-	end
-
 	raidGroup:Show()
 end
 
 oUF:SetActiveStyle("Quaiche_RaidPets")
 local raidpets = oUF:Spawn("header", "oUF_PartyPets", "SecureGroupPetHeaderTemplate")
-raidpets:SetPoint("TOPLEFT", oUF_Quaiche.raidGroups[5], "BOTTOMLEFT", 0, -raid_group_spacing)
 raidpets:SetAttribute("showParty", false)
 raidpets:SetAttribute("showRaid", true)
+raidpets:SetAttribute("xOffset", raid_spacing)
 raidpets:SetAttribute("yOffset", -raid_spacing)
 raidpets:SetAttribute("groupFilter", "1,2,3,4,5,6,7,8")
 raidpets:Show()
+oUF_Quaiche.raidPets = raidpets
+
+oUF_Quaiche:SetNormalLayout()
 
 -- Timer function for the alpha checker
 local total = 0
@@ -541,7 +593,6 @@ function oUF_Quaiche:CheckPartyVisibility()
 	end
 end
 oUF_Quaiche.PLAYER_LOGIN = oUF_Quaiche.CheckPartyVisibility
-oUF_Quaiche.RAID_ROSTER_UPDATE = oUF_Quaiche.CheckPartyVisibility
 oUF_Quaiche.PARTY_LEADER_CHANGED = oUF_Quaiche.CheckPartyVisibility
 oUF_Quaiche.PARTY_MEMBERS_CHANGED = oUF_Quaiche.CheckPartyVisibility
 oUF_Quaiche.PLAYER_REGEN_ENABLED = oUF_Quaiche.CheckPartyVisibility
@@ -562,3 +613,23 @@ oUF_Quaiche:RegisterEvent('PARTY_LEADER_CHANGED')
 oUF_Quaiche:RegisterEvent('PARTY_MEMBERS_CHANGED')
 oUF_Quaiche:RegisterEvent('UNIT_SPELLCAST_CHANNEL_START')
 oUF_Quaiche:RegisterEvent('UNIT_SPELLCAST_CHANNEL_STOP')
+
+function oUF_Quaiche:SwapRaidLayout()
+	self.healerMode = not self.healerMode
+	if self.healerMode then
+		self:SetHealerLayout()
+	else
+		self:SetNormalLayout()
+	end
+end
+
+SLASH_OUFQUAICHE1 = "/quaiche"
+SLASH_OUFQUAICHE2 = "/qua"
+SlashCmdList.OUFQUAICHE = function(msg)
+	if GetNumRaidMembers() > 0 then
+		oUF_Quaiche:SwapRaidLayout()
+	else
+		print("|cFF33FF99oUF_Quaiche|r: You are not in a raid")
+	end
+end
+
