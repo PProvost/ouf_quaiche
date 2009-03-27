@@ -142,35 +142,6 @@ for powerType, value in pairs(oUF.colors.power) do
 	end
 end
 
---[[ Custom Tags ]]
-oUF.Tags["[afk]"] = function(u) return UnitIsAFK(u) and "|cFF990000" or nil end
-oUF.TagEvents["[afk]"] = "UNIT_NAME_UPDATE UNIT_LEVEL PLAYER_FLAGS_CHANGED"
-
-oUF.Tags["[shorthealth]"] = function(u) 
-	local value = UnitHealth(u)
-	if(value >= 1e6) then
-		return ('%.1fm'):format(value / 1e6):gsub('%.?0+([km])$', '%1')
-	elseif(value >= 1e4) then
-		return ('%.1fk'):format(value / 1e3):gsub('%.?0+([km])$', '%1')
-	else
-		return value
-	end
-end
-oUF.TagEvents["[shorthealth]"] = "UNIT_HEALTH UNIT_MAXHEALTH"
-
-oUF.Tags["[smarthealth]"] = function(u) return (UnitHealthMax(u) > UnitHealth(u)) and "-"..oUF.Tags["[missinghp]"](u) or oUF.Tags["[shorthealth]"](u) end
-oUF.TagEvents["[smarthealth]"] = "UNIT_HEALTH UNIT_MAXHEALTH"
-
-oUF.Tags["[qhealth]"] = function(unit)
-	local dead, offline = oUF.Tags["[dead]"](unit), oUF.Tags["[offline]"](unit)
-	if dead then return dead end
-	if offline then return offline end
-	if unit=="pet" or unit=="focus" or unit=="targettarget" or unit=="focustarget" then return oUF.Tags["[perhp]"](unit).."%" end
-	if unit=="target" then return oUF.Tags["[shorthealth]"](unit) .. " (" .. oUF.Tags["[perhp]"](unit) .. "%)" end
-	return oUF.Tags["[smarthealth]"](unit)
-end
-oUF.TagEvents["[qhealth]"] = "UNIT_HEALTH UNIT_MAXHEALTH"
-
 --[[ Right click menu handler ]]--
 local menu = function(self)
 	local unit = self.unit:sub(1, -2)
@@ -183,6 +154,7 @@ local menu = function(self)
 	end
 end
 
+--[[ Colors the health bar according to current Threat Situation ]]
 local ColorThreat = function(self, event, unit)
 	if self.unit ~= unit then return end
 	local status = UnitThreatSituation(self.unit)
@@ -275,7 +247,7 @@ local UnitFactory = function(settings, self, unit)
 		self:Tag(name, "[difficulty][smartlevel]|r [afk][name]|r")
 	else
 		name:SetFontObject(GameFontNormalSmall)
-		self:Tag(name, "[afk][name]|r")
+		self:Tag(name, "[afk][pethappinesscolor][name]|r")
 	end
 
 	-- Powerbar
@@ -361,7 +333,7 @@ local UnitFactory = function(settings, self, unit)
 
 	-- Threat coloring
 	if not(unit and string.match(unit,"target")) then 
-		self.PostUpdateHealth = ColorThreat -- This will let us recolor the bar after oUF colors it|
+		self.PostUpdateHealth = ColorThreat -- This will let us recolor the bar after oUF colors it
 		self:RegisterEvent('UNIT_THREAT_LIST_UPDATE', ColorThreat) -- To catch it even earlier than damage
 		self:RegisterEvent('UNIT_THREAT_SITUATION_UPDATE', ColorThreat)
 	end
