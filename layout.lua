@@ -44,7 +44,6 @@ local party_spacing = 2
 local raid_spacing = 2
 local raid_group_spacing = 8
 local raid_width = 100
-local healer_mode_raid_top = 85
 local backdrop = {
 	bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
 	tile = true,
@@ -74,59 +73,6 @@ local _, player_class = UnitClass('player')
 
 oUF_Quaiche = CreateFrame('Frame')
 oUF_Quaiche:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, event, ...) end end)
-
-function oUF_Quaiche:RAID_ROSTER_UPDATE()
-	self:CheckPartyVisibility()
-
-	if self.healerMode then
-		local max = 0
-		for i = 1,MAX_RAID_MEMBERS do
-			local subgroup = select(3, GetRaidRosterInfo(i))
-			if  subgroup > max then max = subgroup end
-		end
-
-		local total_width = max*raid_width + (max-1)*raid_spacing
-		local left = total_width / 2
-
-		self.raidGroups[1]:SetPoint("TOPLEFT", UIParent, "TOP", -left, -healer_mode_raid_top)
-	end
-end
-
-function oUF_Quaiche:SetHealerLayout()
-	for i=1,NUM_RAID_GROUPS do
-		local raidGroup = self.raidGroups[i]
-		if i == 1 then
-			raidGroup:SetPoint("TOPLEFT", group_left, group_top)
-		else
-			raidGroup:SetPoint("TOPLEFT", self.raidGroups[i-1], "TOPRIGHT", raid_group_spacing, 0)
-		end
-	end
-	
-	self.raidPets:ClearAllPoints()
-	self.raidPets:SetPoint("TOP", UIParent, "TOP", 0, -(healer_mode_raid_top + 100))
-	self.raidPets:SetAttribute("maxColumns", 8)
-	self.raidPets:SetAttribute("unitsPerColumn", 5)
-
-	self:RAID_ROSTER_UPDATE()
-end
-
-function oUF_Quaiche:SetNormalLayout()
-	for i = 1, NUM_RAID_GROUPS do
-		local raidGroup = self.raidGroups[i]
-		if i == 1 then
-			raidGroup:SetPoint("TOPLEFT", group_left, group_top)
-		elseif mod(i,5) == 1 then
-			raidGroup:SetPoint("TOPLEFT", self.raidGroups[i-5], "TOPRIGHT", raid_group_spacing, 0)
-		else
-			raidGroup:SetPoint("TOPLEFT", self.raidGroups[i-1], "BOTTOMLEFT", 0, -raid_group_spacing)
-		end
-	end
-
-	self.raidPets:ClearAllPoints()
-	self.raidPets:SetPoint("TOPLEFT", oUF_Quaiche.raidGroups[5], "BOTTOMLEFT", 0, -raid_group_spacing)
-	self.raidPets:SetAttribute("maxColumns", 1)
-	self.raidPets:SetAttribute("unitsPerColumn", 5)
-end
 
 local debugf = tekDebug and tekDebug:GetFrame("oUF_Quaiche")
 local function Debug(msg) if debugf then debugf:AddMessage(tostring(msg)) end end
@@ -491,7 +437,7 @@ partypets:SetAttribute("yOffset", -party_spacing)
 partypets:SetAttribute("hide-health-text", true)
 partypets:Show()
 
---[[ RAID FRAMES ]]--
+--[[ RAID AND RAID PET FRAMES ]]--
 oUF:SetActiveStyle("Quaiche_Raid")
 oUF_Quaiche.raidGroups = {}
 local raid = {}
@@ -500,6 +446,15 @@ for i = 1, NUM_RAID_GROUPS do
 	raidGroup:SetAttribute("groupFilter", tostring(i))
 	raidGroup:SetAttribute("showraid", true)
 	raidGroup:SetAttribute("yOffset", -raid_spacing)
+
+	if i == 1 then
+		raidGroup:SetPoint("TOPLEFT", group_left, group_top)
+	elseif mod(i,5) == 1 then
+		raidGroup:SetPoint("TOPLEFT", oUF_Quaiche.raidGroups[i-5], "TOPRIGHT", raid_group_spacing, 0)
+	else
+		raidGroup:SetPoint("TOPLEFT", oUF_Quaiche.raidGroups[i-1], "BOTTOMLEFT", 0, -raid_group_spacing)
+	end
+
 	table.insert(oUF_Quaiche.raidGroups, raidGroup)
 	raidGroup:Show()
 end
@@ -511,10 +466,10 @@ raidpets:SetAttribute("showRaid", true)
 raidpets:SetAttribute("xOffset", raid_spacing)
 raidpets:SetAttribute("yOffset", -raid_spacing)
 raidpets:SetAttribute("groupFilter", "1,2,3,4,5,6,7,8")
+raidpets:SetPoint("TOPLEFT", oUF_Quaiche.raidGroups[5], "BOTTOMLEFT", 0, -raid_group_spacing)
+raidpets:SetAttribute("maxColumns", 1)
+raidpets:SetAttribute("unitsPerColumn", 5)
 raidpets:Show()
-oUF_Quaiche.raidPets = raidpets
-
-oUF_Quaiche:SetNormalLayout()
 
 -- Timer function for the alpha checker
 local total = 0
@@ -529,9 +484,7 @@ end)
 
 -- Alpha condition check functions
 local UnitMaxHealth = function(unit) return unit and not UnitIsDeadOrGhost(unit) and UnitHealth(unit) == UnitHealthMax(unit) end
-local UnitMaxMana = function(unit) 
-	return unit and not UnitIsDeadOrGhost(unit) and ((UnitPowerType(unit) ~= 1 and UnitPower(unit) == UnitPowerMax(unit)) or (UnitPower(unit) == 0))
-end
+local UnitMaxMana = function(unit) return unit and not UnitIsDeadOrGhost(unit) and ((UnitPowerType(unit) ~= 1 and UnitPower(unit) == UnitPowerMax(unit)) or (UnitPower(unit) == 0)) end
 local UnitCasting = function(unit) return UnitCastingInfo(unit) ~= nil or oUF_Quaiche.casting end
 	
 function oUF_Quaiche:CheckFrameAlphas()
@@ -569,6 +522,7 @@ oUF_Quaiche.PARTY_LEADER_CHANGED = oUF_Quaiche.CheckPartyVisibility
 oUF_Quaiche.PARTY_MEMBERS_CHANGED = oUF_Quaiche.CheckPartyVisibility
 oUF_Quaiche.PLAYER_REGEN_ENABLED = oUF_Quaiche.CheckPartyVisibility
 oUF_Quaiche.PLAYER_REGEN_DISABLED = oUF_Quaiche.CheckPartyVisibility
+oUF_Quaiche.RAID_ROSTER_UPDATE = oUF_Quaiche.CheckPartyVisibility
 
 function oUF_Quaiche:UNIT_SPELLCAST_CHANNEL_STOP()
 	self.casting = false
@@ -585,23 +539,4 @@ oUF_Quaiche:RegisterEvent('PARTY_LEADER_CHANGED')
 oUF_Quaiche:RegisterEvent('PARTY_MEMBERS_CHANGED')
 oUF_Quaiche:RegisterEvent('UNIT_SPELLCAST_CHANNEL_START')
 oUF_Quaiche:RegisterEvent('UNIT_SPELLCAST_CHANNEL_STOP')
-
-function oUF_Quaiche:SwapRaidLayout()
-	self.healerMode = not self.healerMode
-	if self.healerMode then
-		self:SetHealerLayout()
-	else
-		self:SetNormalLayout()
-	end
-end
-
-SLASH_OUFQUAICHE1 = "/quaiche"
-SLASH_OUFQUAICHE2 = "/qua"
-SlashCmdList.OUFQUAICHE = function(msg)
-	if GetNumRaidMembers() > 0 then
-		oUF_Quaiche:SwapRaidLayout()
-	else
-		print("|cFF33FF99oUF_Quaiche|r: You are not in a raid")
-	end
-end
 
