@@ -18,6 +18,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --]]
 
+--[[
+TODO
+--]]
+
 --- Global function/symbol storage
 local CreateFrame = _G.CreateFrame
 local GameFontNormal = _G.GameFontNormal
@@ -75,7 +79,7 @@ oUF_Quaiche = CreateFrame('Frame')
 oUF_Quaiche:SetScript("OnEvent", function(self, event, ...) if self[event] then return self[event](self, event, ...) end end)
 
 local debugf = tekDebug and tekDebug:GetFrame("oUF_Quaiche")
-local function Debug(msg) if debugf then debugf:AddMessage(tostring(msg)) end end
+local function Debug(...) if debugf then debugf:AddMessage(string.join(", ", tostringall(...))) end end
 
 --[[ Custom colors ]]
 for powerType, value in pairs(oUF.colors.power) do
@@ -102,6 +106,7 @@ end
 
 --[[ Colors the health bar according to current Threat Situation ]]
 local ColorThreat = function(self, event, unit)
+	Debug("ColorThreat", event, unit)
 	if self.unit ~= unit then return end
 	local status = UnitThreatSituation(self.unit)
 	if status > 0 then
@@ -220,7 +225,11 @@ local UnitFactory = function(settings, self, unit)
 		self.Castbar = cb
 
 		self.Castbar.Text = self.Castbar:CreateFontString(nil, 'OVERLAY', 'GameFontHighlightSmallLeft')
-		self.Castbar.Text:SetPoint('CENTER', self.Castbar)
+		self.Castbar.Text:SetPoint('LEFT', self.Castbar, 2)
+
+		self.PowerText = self.Castbar:CreateFontString(nil, 'OVERLAY', 'GameFontHighlightSmallRight')
+		self.PowerText:SetPoint('RIGHT', self.Power, -2)
+		self:Tag(self.PowerText, "[curpp]/[maxpp]")
 	end
 	
 	-- Latency display on player only
@@ -291,12 +300,14 @@ local UnitFactory = function(settings, self, unit)
 	self.CombatFeedbackText = cbft
 
 	-- Support for oUF_ReadyCheck
-	local readycheck = hp:CreateTexture(nil, "OVERLAY")
-	readycheck:SetHeight(12)
-	readycheck:SetWidth(12)
-	readycheck:SetPoint("CENTER", self, "TOPRIGHT", 0, 0)
-	readycheck:Hide()
-	self.ReadyCheck = readycheck
+	if not unit then
+		local readycheck = hp:CreateTexture(nil, "OVERLAY")
+		readycheck:SetHeight(12)
+		readycheck:SetWidth(12)
+		readycheck:SetPoint("CENTER", self, "TOPRIGHT", 0, 0)
+		readycheck:Hide()
+		self.ReadyCheck = readycheck
+	end
 
 	-- Support for oUF_DebuffHighlight
 	local dbh = hp:CreateTexture(nil, "OVERLAY")
