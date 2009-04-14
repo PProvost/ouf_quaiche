@@ -14,6 +14,11 @@ Provides the following Unit Frames
 * Raid
 * Raid Pets
 
+Additional Features
+* Smart player/pet bar fading
+* AFK indication by coloring the player/party/raid names red
+* Built in threat coloring (no Banzai required)
+
 h2. Required Dependency
 
 You must download and install oUF to use this layout:
