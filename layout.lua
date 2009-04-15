@@ -106,10 +106,9 @@ end
 
 --[[ Colors the health bar according to current Threat Situation ]]
 local ColorThreat = function(self, event, unit)
-	Debug("ColorThreat", event, unit)
 	if self.unit ~= unit then return end
 	local status = UnitThreatSituation(self.unit)
-	if status > 0 then
+	if status and status > 0 then
 		if unit == "player" then
 			local r, g, b = GetThreatStatusColor(status)
 			self.Health:SetStatusBarColor(r,g,b)
@@ -136,7 +135,10 @@ local PostCreateAuraIcon = function(self, button)
 	button.icon:SetTexCoord(.07, .93, .07, .93)
 end
 
+local frames = {}
 local UnitFactory = function(settings, self, unit)
+	if not frames[self] then frames[self] = true end
+
 	-- Stash some settings into locals
 	local width = settings["initial-width"]
 	local height = settings["initial-height"]
@@ -167,6 +169,7 @@ local UnitFactory = function(settings, self, unit)
 	hp.colorDisconnected = true
 	hp.colorClass = true
 	hp.colorClassPet = true
+	hp.frequentUpdates = true
 	if unit and string.match(unit,"target") then 
 		hp.colorTapping = true
 		hp.colorReaction = true
@@ -289,7 +292,7 @@ local UnitFactory = function(settings, self, unit)
 	-- Threat coloring
 	if not(unit and string.match(unit,"target")) then 
 		self.PostUpdateHealth = ColorThreat -- This will let us recolor the bar after oUF colors it
-		self:RegisterEvent('UNIT_THREAT_LIST_UPDATE', ColorThreat) -- To catch it even earlier than damage
+		-- self:RegisterEvent('UNIT_THREAT_LIST_UPDATE', ColorThreat) -- To catch it even earlier than damage
 		self:RegisterEvent('UNIT_THREAT_SITUATION_UPDATE', ColorThreat)
 	end
 
@@ -484,12 +487,12 @@ raidpets:Show()
 
 -- Timer function for the alpha checker
 local total = 0
-local freq = 0.15
+local f1 = 0.25
 oUF_Quaiche:SetScript("OnUpdate", function(self, elapsed)
   total = total + elapsed
-    if total >= freq then
+    if total >= f1 then
 			self:CheckFrameAlphas()
-      total = 0
+			total = 0
     end
 end)
 
