@@ -135,9 +135,10 @@ local PostCreateAuraIcon = function(self, button)
 	button.icon:SetTexCoord(.07, .93, .07, .93)
 end
 
-local frames = {}
+oUF_Quaiche.frames = {}
 local UnitFactory = function(settings, self, unit)
-	if not frames[self] then frames[self] = true end
+	if not oUF_Quaiche.frames[self] then oUF_Quaiche.frames[self] = true end
+	Debug("UnitFactory", unit)
 
 	-- Stash some settings into locals
 	local width = settings["initial-width"]
@@ -145,8 +146,6 @@ local UnitFactory = function(settings, self, unit)
 	local hideHealthText = settings["hide-health-text"]
 	local pp_height = settings["powerbar-height"] or 6
 	local hp_height = height - (pp_height + 2*border_size)
-
-	Debug(hideHealthText)
 
 	-- General menu and event setup
 	self.menu = menu
@@ -258,37 +257,6 @@ local UnitFactory = function(settings, self, unit)
 		end
 	end
 
-	-- Auras
-	if unit == "player" or unit =="target" then
-		local buffs = CreateFrame("Frame", nil, self)
-		buffs.size = (width/12)-2   -- 12 per row
-		buffs.num = 36 -- 3 rows
-		buffs:SetHeight((buffs.size+2)*3)
-		buffs:SetWidth(width)
-		buffs:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -2)
-		buffs.initialAnchor = "TOPLEFT"
-		buffs["growth-x"] = "RIGHT"
-		buffs["growth-y"] = "DOWN"
-		buffs.spacing = 2
-		self.Buffs = buffs
-
-		local debuffs = CreateFrame("Frame", nil, self)
-		debuffs.size = (width/12)-2 -- 12 per row
-		debuffs.num = 24 -- 2 rows
-		debuffs:SetHeight((buffs.size+2)*3)
-		debuffs:SetWidth(width)
-		debuffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 2)
-		debuffs.showDebuffType = true
-		debuffs.initialAnchor = "BOTTOMLEFT"
-		debuffs.spacing = 2
-		debuffs["growth-x"] = "RIGHT"
-		debuffs["growth-y"] = "UP"
-		if unit == "target" then debuffs.onlyShowPlayer = true end
-		self.Debuffs = debuffs
-
-		self.PostCreateAuraIcon = PostCreateAuraIcon
-	end
-
 	-- Threat coloring
 	if not(unit and string.match(unit,"target")) then 
 		self.PostUpdateHealth = ColorThreat -- This will let us recolor the bar after oUF colors it
@@ -349,6 +317,13 @@ local UnitFactory = function(settings, self, unit)
 	leader:SetWidth(12)
 	leader:SetPoint("CENTER", self, "TOPLEFT")
 	self.Leader = leader
+
+	-- PvP icon
+	local pvp = hp:CreateTexture(nil, "OVERLAY")
+	pvp:SetHeight(12)
+	pvp:SetWidth(12)
+	pvp:SetPoint("CENTER", self, "TOPRIGHT")
+	self.PvP = pvp
 
 	-- Raid icon
 	local raid_icon = hp:CreateTexture(nil, "OVERLAY")
