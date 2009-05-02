@@ -415,8 +415,10 @@ local party = oUF:Spawn("header", "oUF_Party")
 party:SetPoint("TOPLEFT", group_left, group_top)
 party:SetAttribute("showParty", true)
 party:SetAttribute("yOffset", -party_spacing)
+party:SetAttribute("template", "oUF_QuaichePartyPets")
 party:Show()
 
+--[[
 oUF:SetActiveStyle("Quaiche_PartyPets") 
 local partypets = oUF:Spawn("header", "oUF_PartyPets", "SecureGroupPetHeaderTemplate")
 partypets:SetPoint("TOPLEFT", party, "TOPRIGHT", party_spacing, 0)
@@ -425,21 +427,25 @@ partypets:SetAttribute("showRaid", false)
 partypets:SetAttribute("yOffset", -party_spacing)
 partypets:SetAttribute("hide-health-text", true)
 partypets:Show()
+]]
 
 --[[ RAID AND RAID PET FRAMES ]]--
 oUF:SetActiveStyle("Quaiche_Raid")
 oUF_Quaiche.raidGroups = {}
 local raid = {}
-for i = 1, NUM_RAID_GROUPS do
+for i = 1, 5 do --NUM_RAID_GROUPS do
 	local raidGroup = oUF:Spawn("header", "oUF_Raid" .. i)
 	raidGroup:SetAttribute("groupFilter", tostring(i))
 	raidGroup:SetAttribute("showraid", true)
 	raidGroup:SetAttribute("yOffset", -raid_spacing)
+	raidGroup:SetAttribute("template", "oUF_QuaicheRaidPets")
 
 	if i == 1 then
 		raidGroup:SetPoint("TOPLEFT", group_left, group_top)
+  --[[
 	elseif mod(i,5) == 1 then
 		raidGroup:SetPoint("TOPLEFT", oUF_Quaiche.raidGroups[i-5], "TOPRIGHT", raid_group_spacing, 0)
+	]]
 	else
 		raidGroup:SetPoint("TOPLEFT", oUF_Quaiche.raidGroups[i-1], "BOTTOMLEFT", 0, -raid_group_spacing)
 	end
@@ -448,6 +454,7 @@ for i = 1, NUM_RAID_GROUPS do
 	raidGroup:Show()
 end
 
+--[[
 oUF:SetActiveStyle("Quaiche_RaidPets")
 local raidpets = oUF:Spawn("header", "oUF_PartyPets", "SecureGroupPetHeaderTemplate")
 raidpets:SetAttribute("showParty", false)
@@ -459,6 +466,7 @@ raidpets:SetPoint("TOPLEFT", oUF_Quaiche.raidGroups[5], "BOTTOMLEFT", 0, -raid_g
 raidpets:SetAttribute("maxColumns", 1)
 raidpets:SetAttribute("unitsPerColumn", 5)
 raidpets:Show()
+]]
 
 -- Timer function for the alpha checker
 local total = 0
@@ -499,10 +507,10 @@ function oUF_Quaiche:CheckPartyVisibility()
 		self:UnregisterEvent('PLAYER_REGEN_DISABLED') -- just in case
 		if GetNumRaidMembers() > 0 then
 			party:Hide()
-			partypets:Hide()
+			-- partypets:Hide()
 		else
 			party:Show()
-			partypets:Show()
+			-- partypets:Show()
 		end
 	end
 end

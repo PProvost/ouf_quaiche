@@ -1,0 +1,46 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/../FrameXML/UI.xsd">
+	<Button name="oUF_QuaichePartyPets" inherits="SecureUnitButtonTemplate" hidden="true" virtual="true">
+		<Frames>
+			<Button name="$parentPartyPet" inherits="SecureUnitButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeTo="$parent">
+						<Offset><AbsDimension x="6"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Attributes>
+					<Attribute name="initial-width" type="number" value="85" />
+					<Attribute name="hide-health-text" type="boolean" value="true" />
+					<Attribute name="powerbar-height" type="number" value="5" />
+
+					<Attribute name="unitsuffix" type="string" value="pet"/>
+					<Attribute name="useparent-unit" type="boolean" value="true"/>
+					<Attribute name="type1" type="string" value="target"/>
+					<Attribute name="initial-unitWatch" type="boolean" value="true"/>
+				</Attributes>
+			</Button>
+		</Frames>
+	</Button>
+
+	<Button name="oUF_QuaicheRaidPets" inherits="SecureUnitButtonTemplate" hidden="true" virtual="true">
+		<Frames>
+			<Button name="$parentRaidPet" inherits="SecureUnitButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeTo="$parent">
+						<Offset><AbsDimension x="6"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Attributes>
+					<Attribute name="initial-width" type="number" value="75" />
+					<Attribute name="hide-health-text" type="boolean" value="true" />
+					<Attribute name="powerbar-height" type="number" value="2" />
+
+					<Attribute name="unitsuffix" type="string" value="pet"/>
+					<Attribute name="useparent-unit" type="boolean" value="true"/>
+					<Attribute name="type1" type="string" value="target"/>
+					<Attribute name="initial-unitWatch" type="boolean" value="true"/>
+				</Attributes>
+			</Button>
+		</Frames>
+	</Button>
+</Ui>
+

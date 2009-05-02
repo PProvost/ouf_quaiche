@@ -8,5 +8,6 @@
 ## X-License: Apache 2.0
 ## X-Credits: Haste, Tekkub, Caellian, Ammo, p3Lim, and many, many others.
 
+templates.xml
 CustomTags.lua
 layout.lua
