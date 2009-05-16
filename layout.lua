@@ -97,7 +97,7 @@ local menu = function(self)
 	local unit = self.unit:sub(1, -2)
 	local cunit = self.unit:gsub("(.)", string.upper, 1)
 
-	if unit == "party" or unit == "partypet" then
+	if self.id and unit == "party" or unit == "partypet" then
 		ToggleDropDownMenu(1, nil, _G["PartyMemberFrame"..self.id.."DropDown"], "cursor", 0, 0)
 	elseif(_G[cunit.."FrameDropDown"]) then
 		ToggleDropDownMenu(1, nil, _G[cunit.."FrameDropDown"], "cursor", 0, 0)
@@ -229,9 +229,9 @@ local UnitFactory = function(settings, self, unit)
 		self.Castbar.Text = self.Castbar:CreateFontString(nil, 'OVERLAY', 'GameFontHighlightSmallLeft')
 		self.Castbar.Text:SetPoint('LEFT', self.Castbar, 2)
 
-		self.PowerText = self.Castbar:CreateFontString(nil, 'OVERLAY', 'GameFontHighlightSmallRight')
+		self.PowerText = self.Power:CreateFontString(nil, 'OVERLAY', 'GameFontHighlightSmallRight')
 		self.PowerText:SetPoint('RIGHT', self.Power, -2)
-		self:Tag(self.PowerText, "[curpp]/[maxpp]")
+		self:Tag(self.PowerText, "[qpower]")
 	end
 	
 	-- Latency display on player only
@@ -404,30 +404,20 @@ oUF:Spawn("player"):SetPoint("CENTER", UIParent, -150, -145)
 oUF:Spawn("target"):SetPoint("CENTER", UIParent, 150, -145)
 
 oUF:SetActiveStyle("Quaiche_Small")
-oUF:Spawn("focus"):SetPoint("TOPRIGHT", oUF.units.player, "TOPLEFT", -2, 0)
-oUF:Spawn("pet"):SetPoint("BOTTOMRIGHT", oUF.units.player, "BOTTOMLEFT", -2, 0)
-oUF:Spawn("focustarget"):SetPoint("TOPLEFT", oUF.units.target, "TOPRIGHT", 2, 0)
-oUF:Spawn("targettarget"):SetPoint("BOTTOMLEFT", oUF.units.target, "BOTTOMRIGHT", 2, 0)
+oUF:Spawn("pet"):SetPoint("TOPRIGHT", oUF.units.player, "BOTTOMRIGHT", 0, -2)
+oUF:Spawn("focus"):SetPoint("TOPLEFT", oUF.units.player, "BOTTOMLEFT", 0, -2)
+oUF:Spawn("focustarget"):SetPoint("TOPRIGHT", oUF.units.target, "BOTTOMRIGHT", 0, -2)
+oUF:Spawn("targettarget"):SetPoint("TOPLEFT", oUF.units.target, "BOTTOMLEFT", 0, -2)
 
 --[[ PARTY FRAMES ]]--
 oUF:SetActiveStyle("Quaiche_Party") 
 local party = oUF:Spawn("header", "oUF_Party")
 party:SetPoint("TOPLEFT", group_left, group_top)
+-- party:SetAttribute('showPlayer', true)
 party:SetAttribute("showParty", true)
 party:SetAttribute("yOffset", -party_spacing)
 party:SetAttribute("template", "oUF_QuaichePartyPets")
 party:Show()
-
---[[
-oUF:SetActiveStyle("Quaiche_PartyPets") 
-local partypets = oUF:Spawn("header", "oUF_PartyPets", "SecureGroupPetHeaderTemplate")
-partypets:SetPoint("TOPLEFT", party, "TOPRIGHT", party_spacing, 0)
-partypets:SetAttribute("showParty", true)
-partypets:SetAttribute("showRaid", false)
-partypets:SetAttribute("yOffset", -party_spacing)
-partypets:SetAttribute("hide-health-text", true)
-partypets:Show()
-]]
 
 --[[ RAID AND RAID PET FRAMES ]]--
 oUF:SetActiveStyle("Quaiche_Raid")
@@ -442,10 +432,6 @@ for i = 1, 5 do --NUM_RAID_GROUPS do
 
 	if i == 1 then
 		raidGroup:SetPoint("TOPLEFT", group_left, group_top)
-  --[[
-	elseif mod(i,5) == 1 then
-		raidGroup:SetPoint("TOPLEFT", oUF_Quaiche.raidGroups[i-5], "TOPRIGHT", raid_group_spacing, 0)
-	]]
 	else
 		raidGroup:SetPoint("TOPLEFT", oUF_Quaiche.raidGroups[i-1], "BOTTOMLEFT", 0, -raid_group_spacing)
 	end
@@ -453,20 +439,6 @@ for i = 1, 5 do --NUM_RAID_GROUPS do
 	table.insert(oUF_Quaiche.raidGroups, raidGroup)
 	raidGroup:Show()
 end
-
---[[
-oUF:SetActiveStyle("Quaiche_RaidPets")
-local raidpets = oUF:Spawn("header", "oUF_PartyPets", "SecureGroupPetHeaderTemplate")
-raidpets:SetAttribute("showParty", false)
-raidpets:SetAttribute("showRaid", true)
-raidpets:SetAttribute("xOffset", raid_spacing)
-raidpets:SetAttribute("yOffset", -raid_spacing)
-raidpets:SetAttribute("groupFilter", "1,2,3,4,5,6,7,8")
-raidpets:SetPoint("TOPLEFT", oUF_Quaiche.raidGroups[5], "BOTTOMLEFT", 0, -raid_group_spacing)
-raidpets:SetAttribute("maxColumns", 1)
-raidpets:SetAttribute("unitsPerColumn", 5)
-raidpets:Show()
-]]
 
 -- Timer function for the alpha checker
 local total = 0
@@ -507,10 +479,8 @@ function oUF_Quaiche:CheckPartyVisibility()
 		self:UnregisterEvent('PLAYER_REGEN_DISABLED') -- just in case
 		if GetNumRaidMembers() > 0 then
 			party:Hide()
-			-- partypets:Hide()
 		else
 			party:Show()
-			-- partypets:Show()
 		end
 	end
 end
