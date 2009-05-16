@@ -53,6 +53,14 @@ oUF.Tags["[qhealth]"] = function(unit)
 end
 oUF.TagEvents["[qhealth]"] = "UNIT_HEALTH UNIT_MAXHEALTH"
 
+oUF.Tags["[qpower]"] = function(unit)
+	local curpp, maxpp = oUF.Tags["[curpp]"](unit), oUF.Tags["[maxpp]"](unit)
+	if (not UnitIsDead(unit)) and UnitIsConnected(unit) and (UnitPower(unit) < UnitPowerMax(unit)) then
+		return curpp.."/"..maxpp
+	end
+end
+oUF.TagEvents["[qpower]"] = "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER"
+
 -- converted haste's happiness stuff into text coloring
 oUF.Tags["[pethappinesscolor]"] = function(u)
 	local happiness = GetPetHappiness()
