@@ -1,6 +1,8 @@
 h2. About oUF_Quaiche
 
-This is my own custom oUF layout. As with all oUF layouts, this addon requires oUF to function.
+__NOTE: Starting with v2.1 there are no longer any Buff/Debuff icons on the player or target frames. I have changed my UI to use SatrinaBuffFrames for these aura icons, so no longer need them in my layout.__
+
+This is my personal oUF layout. As with most oUF layouts, this addon requires oUF to function.
 
 Provides the following Unit Frames
 * Player
@@ -11,7 +13,7 @@ Provides the following Unit Frames
 * Pet
 * Party
 * Party Pets
-* Raid
+* Raid (only groups 1-5)
 * Raid Pets
 
 Additional Features
@@ -23,7 +25,6 @@ h2. Required Dependency
 
 You must download and install oUF to use this layout:
 "http://www.wowinterface.com/downloads/info9994-oUF.html":http://www.wowinterface.com/downloads/info9994-oUF.html
-
 
 h2. Optional Dependencies
 
