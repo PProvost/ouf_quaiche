@@ -18,25 +18,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --]]
 
---[[
-TODO
---]]
-
 --- Global function/symbol storage
 local CreateFrame = _G.CreateFrame
 local GameFontNormal = _G.GameFontNormal
 local GameFontNormalSmall = _G.GameFontNormalSmall
 local GetNumRaidMembers = _G.GetNumRaidMembers
-local GetRaidTargetIndex = _G.GetRaidTargetIndex
-local ICON_LIST = _G.ICON_LIST
 local InCombatLockdown = _G.InCombatLockdown
-local select = _G.select
 local ToggleDropDownMenu = _G.ToggleDropDownMenu
 local UnitIsConnected = _G.UnitIsConnected
 local UnitIsDead = _G.UnitIsDead
 local UnitIsGhost = _G.UnitIsGhost
-local UnitIsTapped = _G.UnitIsTapped
-local UnitIsTappedByPlayer = _G.UnitIsTappedByPlayer
 
 --- Configuration parameters
 local uiscale = 0.85
@@ -72,6 +63,7 @@ local runeColors = {
 
 -- Other locals
 local _, player_class = UnitClass('player')
+local nullFrame = CreateFrame("Frame")
 
 --[[ Addon frame for events and global storage ]]--
 
@@ -104,27 +96,12 @@ local menu = function(self)
 	end
 end
 
---[[ Colors the health bar according to current Threat Situation ]]
-local ColorThreat = function(self, event, unit)
-	if self.unit ~= unit then return end
-	local status = UnitThreatSituation(self.unit)
-	if status and status > 0 then
-		if unit == "player" then
-			local r, g, b = GetThreatStatusColor(status)
-			self.Health:SetStatusBarColor(r,g,b)
-		elseif status > 1 then
-			self.Health:SetStatusBarColor(1,0,0)
-		end
-	end
-end
-
 local PostUpdatePower = function(self, event, unit, bar, min, max)
 	if(min == 0 or max == 0 or not UnitIsConnected(unit)) then
 		bar:SetValue(0)
 	elseif(UnitIsDead(unit) or UnitIsGhost(unit)) then
 		bar:SetValue(0)
 	end
-	ColorThreat(self, event, unit)
 end
 
 local PostCreateAuraIcon = function(self, button)
@@ -135,9 +112,14 @@ local PostCreateAuraIcon = function(self, button)
 	button.icon:SetTexCoord(.07, .93, .07, .93)
 end
 
-oUF_Quaiche.frames = {}
+local OverrideUpdateThreat = function(self, event, unit, status)
+	if(status and status > 0) then
+		local r, g, b = GetThreatStatusColor(status)
+		self.Health:SetStatusBarColor(r, g, b)
+	end
+end
+
 local UnitFactory = function(settings, self, unit)
-	if not oUF_Quaiche.frames[self] then oUF_Quaiche.frames[self] = true end
 	Debug("UnitFactory", unit)
 
 	-- Stash some settings into locals
@@ -258,11 +240,8 @@ local UnitFactory = function(settings, self, unit)
 	end
 
 	-- Threat coloring
-	if not(unit and string.match(unit,"target")) then 
-		self.PostUpdateHealth = ColorThreat -- This will let us recolor the bar after oUF colors it
-		-- self:RegisterEvent('UNIT_THREAT_LIST_UPDATE', ColorThreat) -- To catch it even earlier than damage
-		self:RegisterEvent('UNIT_THREAT_SITUATION_UPDATE', ColorThreat)
-	end
+	self.Threat = nullFrame
+	self.OverrideUpdateThreat = OverrideUpdateThreat
 
 	-- Support for oUF_CombatFeedback
 	local cbft = hp:CreateFontString(nil, "OVERLAY")
@@ -367,7 +346,7 @@ oUF:RegisterStyle("Quaiche_Full", setmetatable({
 }, {__call = UnitFactory}))
 
 oUF:RegisterStyle("Quaiche_Small", setmetatable({
-	["initial-width"] = 95,
+	["initial-width"] = 118,
 	["initial-height"] = 18,
 	["powerbar-height"] = 2,
 }, {__call = UnitFactory}))
@@ -413,11 +392,11 @@ oUF:Spawn("targettarget"):SetPoint("TOPLEFT", oUF.units.target, "BOTTOMLEFT", 0,
 oUF:SetActiveStyle("Quaiche_Party") 
 local party = oUF:Spawn("header", "oUF_Party")
 party:SetPoint("TOPLEFT", group_left, group_top)
--- party:SetAttribute('showPlayer', true)
 party:SetAttribute("showParty", true)
 party:SetAttribute("yOffset", -party_spacing)
 party:SetAttribute("template", "oUF_QuaichePartyPets")
 party:Show()
+oUF_Quaiche.party = party
 
 --[[ RAID AND RAID PET FRAMES ]]--
 oUF:SetActiveStyle("Quaiche_Raid")
