@@ -370,13 +370,6 @@ oUF:RegisterStyle("Quaiche_Raid", setmetatable({
 	["powerbar-height"] = 2,
 }, {__call = UnitFactory}))
 
-oUF:RegisterStyle("Quaiche_RaidPets", setmetatable({
-	["initial-width"] = 75,
-	["initial-height"] = 18,
-	["powerbar-height"] = 2,
-	["hide-health-text"] = true,
-}, {__call = UnitFactory}))
-
 --[[ STANDARD FRAMES ]]--
 oUF:SetActiveStyle("Quaiche_Full") 
 oUF:Spawn("player"):SetPoint("CENTER", UIParent, -150, -145)
