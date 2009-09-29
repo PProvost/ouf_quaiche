@@ -241,15 +241,15 @@ local UnitFactory = function(settings, self, unit)
 	end
 
 	-- Threat coloring
+	--[[
 	self.Threat = nullFrame
 	self.OverrideUpdateThreat = OverrideUpdateThreat
-	--[[
-	local threat = self:CreateTexture(nil, "OVERLAY")
-	threat:SetHeight(12)
-	threat:SetWidth(12)
-	threat:SetPoint("CENTER", self, "LEFT")
-	self.Threat = threat
 	]]
+	local threat = self:CreateTexture(nil, "OVERLAY")
+	threat:SetTexture([[Interface/Tooltips/UI-Tooltip-Background]])
+	threat:SetPoint("TOPRIGHT", self, "TOPRIGHT", 0.25, 0.25)
+	threat:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", -0.25, -0.25)
+	self.Threat = threat
 
 	-- Support for oUF_CombatFeedback
 	local cbft = hp:CreateFontString(nil, "OVERLAY")
