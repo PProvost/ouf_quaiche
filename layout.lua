@@ -128,6 +128,7 @@ local UnitFactory = function(settings, self, unit)
 	local hideHealthText = settings["hide-health-text"]
 	local pp_height = settings["powerbar-height"] or 6
 	local hp_height = height - (pp_height + 2*border_size)
+	local hide_decorations = settings["hide-decorations"]
 
 	-- General menu and event setup
 	self.menu = menu
@@ -242,6 +243,13 @@ local UnitFactory = function(settings, self, unit)
 	-- Threat coloring
 	self.Threat = nullFrame
 	self.OverrideUpdateThreat = OverrideUpdateThreat
+	--[[
+	local threat = self:CreateTexture(nil, "OVERLAY")
+	threat:SetHeight(12)
+	threat:SetWidth(12)
+	threat:SetPoint("CENTER", self, "LEFT")
+	self.Threat = threat
+	]]
 
 	-- Support for oUF_CombatFeedback
 	local cbft = hp:CreateFontString(nil, "OVERLAY")
@@ -290,19 +298,21 @@ local UnitFactory = function(settings, self, unit)
 		end
 	end
 
-	-- Leader icon
-	local leader = hp:CreateTexture(nil, "OVERLAY")
-	leader:SetHeight(12)
-	leader:SetWidth(12)
-	leader:SetPoint("CENTER", self, "TOPLEFT")
-	self.Leader = leader
+	if not hide_decorations then
+		-- Leader icon
+		local leader = hp:CreateTexture(nil, "OVERLAY")
+		leader:SetHeight(12)
+		leader:SetWidth(12)
+		leader:SetPoint("CENTER", self, "TOPLEFT")
+		self.Leader = leader
 
-	-- PvP icon
-	local pvp = hp:CreateTexture(nil, "OVERLAY")
-	pvp:SetHeight(12)
-	pvp:SetWidth(12)
-	pvp:SetPoint("CENTER", self, "TOPRIGHT")
-	self.PvP = pvp
+		-- PvP icon
+		local pvp = hp:CreateTexture(nil, "OVERLAY")
+		pvp:SetHeight(16)
+		pvp:SetWidth(16)
+		pvp:SetPoint("CENTER", self, "TOPRIGHT")
+		self.PvP = pvp
+	end
 
 	-- Raid icon
 	local raid_icon = hp:CreateTexture(nil, "OVERLAY")
@@ -316,14 +326,14 @@ local UnitFactory = function(settings, self, unit)
 
 	if unit == "player" then -- player gets resting and combat
 		local resting = pp:CreateTexture(nil, "OVERLAY")
-		resting:SetHeight(12)
-		resting:SetWidth(12)
+		resting:SetHeight(16)
+		resting:SetWidth(16)
 		resting:SetPoint("CENTER", self, "BOTTOMRIGHT")
 		self.Resting = resting
 
 		local combat = pp:CreateTexture(nil, "OVERLAY")
-		combat:SetHeight(12)
-		combat:SetWidth(12)
+		combat:SetHeight(16)
+		combat:SetWidth(16)
 		combat:SetPoint("CENTER", self, "TOPRIGHT")
 		self.Combat = combat
 	end
@@ -370,6 +380,13 @@ oUF:RegisterStyle("Quaiche_Raid", setmetatable({
 	["powerbar-height"] = 2,
 }, {__call = UnitFactory}))
 
+oUF:RegisterStyle("Quaiche_MainTank", setmetatable({
+	["initial-width"] = raid_width,
+	["initial-height"] = 18,
+	["powerbar-height"] = 2,
+	["hide-decorations"] = true,
+}, {__call = UnitFactory}))
+
 --[[ STANDARD FRAMES ]]--
 oUF:SetActiveStyle("Quaiche_Full") 
 oUF:Spawn("player"):SetPoint("CENTER", UIParent, -150, -145)
@@ -410,6 +427,31 @@ for i = 1, 5 do --NUM_RAID_GROUPS do
 
 	table.insert(oUF_Quaiche.raidGroups, raidGroup)
 	raidGroup:Show()
+end
+
+-- Maintank stuff w/ oRA3 support
+oUF:SetActiveStyle("Quaiche_MainTank")
+local maintanks = oUF:Spawn("header", "oUF_MainTanks")
+maintanks:SetPoint("TOPLEFT", UIParent, "TOP", -150, group_top)
+maintanks:SetManyAttributes(
+	"yOffset", raid_spacing,
+	"template", "oUF_QuaicheMainTank",
+	"showRaid", true,
+	"initial-unitWatch", true,
+	"point", "BOTTOM",
+	"sortDir", "DESC"
+)
+
+if oRA3 then
+	maintanks:SetAttribute("nameList", table.concat(oRA3:GetSortedTanks(), ","))
+	local tankhandler = {}
+	function tankhandler:OnTanksUpdated(event, tanks) 
+		maintanks:SetAttribute("nameList", table.concat(tanks, ","))
+	end
+	oRA3.RegisterCallback(tankhandler, "OnTanksUpdated")
+	maintanks:Show()
+else
+	maintanks:SetAttribute("groupFilter", "MAINTANK,MAINASSIST")
 end
 
 -- Timer function for the alpha checker
