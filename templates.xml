@@ -38,6 +38,7 @@
 					<Attribute name="useparent-unit" type="boolean" value="true"/>
 					<Attribute name="type1" type="string" value="target"/>
 					<Attribute name="initial-unitWatch" type="boolean" value="true"/>
+
 				</Attributes>
 			</Button>
 		</Frames>
@@ -58,6 +59,8 @@
 					<Attribute name="useparent-unit" type="boolean" value="true"/>
 					<Attribute name="unitsuffix" type="string" value="target"/>
 					<Attribute name="initial-unitWatch" type="boolean" value="true"/>
+
+					<Attribute name="hide-decorations" type="boolean" value="true"/>
 				</Attributes>
 			
 			</Button>
@@ -73,6 +76,8 @@
 					<Attribute name="useparent-unit" type="boolean" value="true"/>
 					<Attribute name="unitsuffix" type="string" value="targettarget"/>
 					<Attribute name="initial-unitWatch" type="boolean" value="true"/>
+
+					<Attribute name="hide-decorations" type="boolean" value="true"/>
 				</Attributes>
 			</Button>
 		</Frames>

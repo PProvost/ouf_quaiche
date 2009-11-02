@@ -251,6 +251,16 @@ local UnitFactory = function(settings, self, unit)
 	threat:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", -0.25, -0.25)
 	self.Threat = threat
 
+	-- Support for oUF_GCD
+	if unit == "player" then
+		self.GCD = CreateFrame("StatusBar", nil, self)
+		self.GCD:SetHeight(3)
+		self.GCD:SetPoint('LEFT', hp, 'BOTTOMLEFT')
+		self.GCD:SetPoint('RIGHT', hp, 'BOTTOMRIGHT')
+		self.GCD:SetStatusBarTexture(statusbartexture)
+		self.GCD:SetStatusBarColor(0.55, 0.57, 0.61)
+	end
+
 	-- Support for oUF_CombatFeedback
 	local cbft = hp:CreateFontString(nil, "OVERLAY")
 	cbft:SetPoint("CENTER", hp, "CENTER")
@@ -339,7 +349,7 @@ local UnitFactory = function(settings, self, unit)
 	end
 
 	-- Range fading on party and partypets
-	if (not unit) or string.match(unit, "partypet") then
+	if ((not unit) or string.match(unit, "partypet")) and not hide_decorations then
 		self.Range = true
 		self.inRangeAlpha = 1
 		self.outsideRangeAlpha = .5
@@ -442,13 +452,14 @@ maintanks:SetManyAttributes(
 	"sortDir", "DESC"
 )
 
+function oUF_Quaiche:OnTanksUpdated(event, tanks) 
+	maintanks:SetAttribute("nameList", table.concat(tanks, ","))
+end
+	
 if oRA3 then
-	maintanks:SetAttribute("nameList", table.concat(oRA3:GetSortedTanks(), ","))
-	local tankhandler = {}
-	function tankhandler:OnTanksUpdated(event, tanks) 
-		maintanks:SetAttribute("nameList", table.concat(tanks, ","))
-	end
-	oRA3.RegisterCallback(tankhandler, "OnTanksUpdated")
+	-- maintanks:SetAttribute("nameList", table.concat(oRA3:GetSortedTanks(), ","))
+	oUF_Quaiche:OnTanksUpdated(nil, oRA3:GetSortedTanks())
+	oRA3.RegisterCallback(oUF_Quaiche, "OnTanksUpdated")
 	maintanks:Show()
 else
 	maintanks:SetAttribute("groupFilter", "MAINTANK,MAINASSIST")
