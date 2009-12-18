@@ -399,8 +399,8 @@ oUF:RegisterStyle("Quaiche_MainTank", setmetatable({
 
 --[[ STANDARD FRAMES ]]--
 oUF:SetActiveStyle("Quaiche_Full") 
-oUF:Spawn("player"):SetPoint("CENTER", UIParent, -150, -145)
-oUF:Spawn("target"):SetPoint("CENTER", UIParent, 150, -145)
+oUF:Spawn("player"):SetPoint("BOTTOMRIGHT", UIParent, "BOTTOM", -78.5, 177)
+oUF:Spawn("target"):SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", 78.5, 177)
 
 oUF:SetActiveStyle("Quaiche_Small")
 oUF:Spawn("pet"):SetPoint("TOPRIGHT", oUF.units.player, "BOTTOMRIGHT", 0, -2)
@@ -466,6 +466,7 @@ else
 end
 
 -- Timer function for the alpha checker
+--[[
 local total = 0
 local f1 = 0.25
 oUF_Quaiche:SetScript("OnUpdate", function(self, elapsed)
@@ -475,6 +476,7 @@ oUF_Quaiche:SetScript("OnUpdate", function(self, elapsed)
 			total = 0
     end
 end)
+]]
 
 -- Alpha condition check functions
 local UnitMaxHealth = function(unit) return unit and not UnitIsDeadOrGhost(unit) and UnitHealth(unit) == UnitHealthMax(unit) end
