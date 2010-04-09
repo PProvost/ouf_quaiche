@@ -324,6 +324,19 @@ local UnitFactory = function(settings, self, unit)
 		self.PvP = pvp
 	end
 
+	-- LFDRole icons
+	if not unit then
+		local lfdRole  = hp:CreateTexture(nil, "OVERLAY")
+		lfdRole:SetHeight(16); lfdRole:SetWidth(16)
+		lfdRole:SetPoint("CENTER", self, "LEFT", -3)
+		self.LFDRole = lfdRole
+	elseif unit == "player" then
+		local lfdRole  = hp:CreateTexture(nil, "OVERLAY")
+		lfdRole:SetHeight(16); lfdRole:SetWidth(16)
+		lfdRole:SetPoint("CENTER", self, "TOP")
+		self.LFDRole = lfdRole
+	end
+
 	-- Raid icon
 	local raid_icon = hp:CreateTexture(nil, "OVERLAY")
 	if unit == "player" or unit =="target" then
