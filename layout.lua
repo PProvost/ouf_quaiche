@@ -328,7 +328,7 @@ local UnitFactory = function(settings, self, unit)
 	if not unit then
 		local lfdRole  = hp:CreateTexture(nil, "OVERLAY")
 		lfdRole:SetHeight(16); lfdRole:SetWidth(16)
-		lfdRole:SetPoint("CENTER", self, "LEFT", -3)
+		lfdRole:SetPoint("CENTER", self, "RIGHT", 3)
 		self.LFDRole = lfdRole
 	elseif unit == "player" then
 		local lfdRole  = hp:CreateTexture(nil, "OVERLAY")
