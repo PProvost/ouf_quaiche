@@ -45,4 +45,3 @@ Please file any bugs, suggestions or comments as a ticket on the "CurseForge pro
 h2. Credits
 
 Haste of course for his amazing framework that makes all this possible. Tekkub, Caellian, Ammo, p3Lim, and many, many others for tips tricks and pointers along the way.
-
