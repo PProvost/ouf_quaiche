@@ -88,7 +88,14 @@ end
 
 --------------------------------------------------------------
 -- Common statusbar texture
-lib.statusbartexture = "Interface\\AddOns\\oUF_Quaiche\\Minimalist"
+-- Attempts to get Minimalist from LibSharedMedia if possible
+-- otherwise defaults to the default UI texture
+--
+-- Override in your layout if you want to use something else
+local texture = "Interface\\TargetingFrame\\UI-StatusBar"
+local lsm = LibStub:GetLibrary("LibSharedMedia-3.0", true)
+if lsm then texture = lsm:Fetch("statusbar", "Minimalist")	end
+lib.StatusBarTexture = texture
 
 --------------------------------------------------------------
 -- Holder for unit specific helper functions
@@ -122,7 +129,7 @@ function lib.CommonUnitSetup(settings, self, unit)
 
 	-- Healthbar
 	local hp = CreateFrame("StatusBar", nil, self)
-	hp:SetStatusBarTexture(lib.statusbartexture)
+	hp:SetStatusBarTexture(lib.StatusBarTexture)
 	hp:SetHeight(hp_height)
 	hp:SetPoint("TOP", self, "TOP", 0, -border_size)
 	hp:SetPoint("LEFT", self, "LEFT", border_size, 0)
@@ -160,7 +167,7 @@ function lib.CommonUnitSetup(settings, self, unit)
 
 	-- Powerbar
 	local pp = CreateFrame("StatusBar", nil, self)
-	pp:SetStatusBarTexture(lib.statusbartexture)
+	pp:SetStatusBarTexture(lib.StatusBarTexture)
 	pp:SetStatusBarColor( unpack(oUF.colors.power["MANA"]) )
 	pp:SetHeight(pp_height) 
 	pp:SetPoint("LEFT", self, "LEFT", border_size, 0)
@@ -221,7 +228,6 @@ function lib.CommonUnitSetup(settings, self, unit)
 	raid_icon:SetPoint("CENTER", hp, "CENTER")
 	raid_icon:SetHeight(16); raid_icon:SetWidth(16)
 	self.RaidIcon = raid_icon
-
 
 	-- Call any unit specific setup that is configured
 	local unit = unit or "party"

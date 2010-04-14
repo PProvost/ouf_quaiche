@@ -1,7 +1,7 @@
 --[[
 Name: oUF_Quaiche
 Author: Quaiche
-Description: A custom oUF layout for QBertUI
+Description: Player/target frames for my custom UI
 
 Copyright 2010 Quaiche
 
@@ -36,7 +36,7 @@ local runeColors = {
 
 local function CreateCastbarOverlay(self)
 	local cb = CreateFrame("StatusBar", nil, self)
-	cb:SetStatusBarTexture(liboufq.statusbartexture)
+	cb:SetStatusBarTexture(liboufq.StatusBarTexture)
 	cb:SetStatusBarColor(.75, .75, .35, 0.65)
 	cb:SetAllPoints(self.Power)
 	cb:SetFrameStrata("HIGH")
@@ -61,7 +61,7 @@ liboufq.UnitSpecific["player"] = function(settings, self)
 	-- Cast latency display
 	local cb = self.Castbar
 	cb.SafeZone = cb:CreateTexture(nil, 'BORDER')
-	cb.SafeZone:SetTexture(liboufq.statusbartexture)
+	cb.SafeZone:SetTexture(liboufq.StatusBarTexture)
 	cb.SafeZone:SetVertexColor(0.75, 0.75, 0.35, 0.35)
 
 	-- Combo points for druids and rogues only
@@ -85,7 +85,7 @@ liboufq.UnitSpecific["player"] = function(settings, self)
 		self.GCD:SetHeight(3)
 		self.GCD:SetPoint('LEFT', self.Health, 'BOTTOMLEFT')
 		self.GCD:SetPoint('RIGHT', self.Health, 'BOTTOMRIGHT')
-		self.GCD:SetStatusBarTexture(liboufq.statusbartexture)
+		self.GCD:SetStatusBarTexture(liboufq.StatusBarTexture)
 		self.GCD:SetStatusBarColor(0.55, 0.57, 0.61)
 	end
 
@@ -104,7 +104,7 @@ liboufq.UnitSpecific["player"] = function(settings, self)
 			else
 				self.RuneBar[i]:SetPoint('LEFT', self.RuneBar[i-1], 'RIGHT', border_size, 0)
 			end
-			self.RuneBar[i]:SetStatusBarTexture(liboufq.statusbartexture)
+			self.RuneBar[i]:SetStatusBarTexture(liboufq.StatusBarTexture)
 			self.RuneBar[i]:SetStatusBarColor(unpack(runeColors[i]))
 			self.RuneBar[i]:SetHeight(half_height)
 			self.RuneBar[i]:SetParent(self.Power)
@@ -152,30 +152,6 @@ liboufq.UnitSpecific["target"] = function(settings, self)
 
 	-- Raid Icon Position
 	self.RaidIcon:SetPoint("CENTER", self.Health, "TOP")
-end
-
-liboufq.UnitSpecific["party"] = function(settings, self)
-	-- LFD Role Icon
-	local lfdRole  = hp:CreateTexture(nil, "OVERLAY")
-	lfdRole:SetHeight(16); lfdRole:SetWidth(16)
-	lfdRole:SetPoint("CENTER", self, "RIGHT", 3)
-	self.LFDRole = lfdRole
-
-	-- Support for oUF_ReadyCheck
-	local readycheck = hp:CreateTexture(nil, "OVERLAY")
-	readycheck:SetHeight(12)
-	readycheck:SetWidth(12)
-	readycheck:SetPoint("CENTER", self, "TOPRIGHT", 0, 0)
-	readycheck:Hide()
-	self.ReadyCheck = readycheck
-
-	-- Range fading on party and partypets
-	if  not hide_decorations then
-		self.Range = true
-		self.inRangeAlpha = 1
-		self.outsideRangeAlpha = .5
-	end
-
 end
 
 local setmetatable = _G.setmetatable

@@ -2,7 +2,7 @@
 ## Title: oUF_Quaiche
 ## Author: Quaiche
 ## Version: $project-version$
-## Notes: My personal oUF layout
+## Notes: Player and target blocks for my personal oUF layout
 ## Dependencies: oUF
 ## OptionalDeps: LibOufQuaiche, tekDebug, oUF_AFKIcon, oUF_CombatFeedback, oUF_DebuffHighlights, oUF_DruidHots, oUF_HealComm4, oUF_ReadyCheck, oUF_RuneBar, oRA3
 ## X-License: Apache 2.0
