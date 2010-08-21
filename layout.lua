@@ -169,12 +169,12 @@ oUF:RegisterStyle("Quaiche_Small", setmetatable({
 
 --[[ STANDARD FRAMES ]]--
 oUF:SetActiveStyle("Quaiche_Full") 
-oUF:Spawn("player"):SetPoint("BOTTOMRIGHT", UIParent, "BOTTOM", -78.5, 177)
-oUF:Spawn("target"):SetPoint("BOTTOMLEFT", UIParent, "BOTTOM", 78.5, 177)
+oUF:Spawn("player"):SetPoint("BOTTOMRIGHT", WorldFrame, "BOTTOM", -1, 6)
+oUF:Spawn("target"):SetPoint("BOTTOMLEFT", WorldFrame, "BOTTOM", 1, 6)
 
 oUF:SetActiveStyle("Quaiche_Small")
-oUF:Spawn("pet"):SetPoint("TOPRIGHT", oUF.units.player, "BOTTOMRIGHT", 0, -2)
-oUF:Spawn("focus"):SetPoint("TOPLEFT", oUF.units.player, "BOTTOMLEFT", 0, -2)
-oUF:Spawn("focustarget"):SetPoint("TOPRIGHT", oUF.units.target, "BOTTOMRIGHT", 0, -2)
-oUF:Spawn("targettarget"):SetPoint("TOPLEFT", oUF.units.target, "BOTTOMLEFT", 0, -2)
+oUF:Spawn("pet"):SetPoint("BOTTOMRIGHT", oUF.units.player, "TOPRIGHT", 0, 2)
+oUF:Spawn("focus"):SetPoint("BOTTOMLEFT", oUF.units.player, "TOPLEFT", 0, 2)
+oUF:Spawn("focustarget"):SetPoint("BOTTOMRIGHT", oUF.units.target, "TOPRIGHT", 0, 2)
+oUF:Spawn("targettarget"):SetPoint("BOTTOMLEFT", oUF.units.target, "TOPLEFT", 0, 2)
 

@@ -1,5 +1,5 @@
 ## Interface: 30300
-## Title: oUF_Quaiche
+## Title: oUF_Quaiche (Solo)
 ## Author: Quaiche
 ## Version: $project-version$
 ## Notes: Player and target blocks for my personal oUF layout
