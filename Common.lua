@@ -6,6 +6,19 @@ local oUF = addonNS.oUF
 local uiscale = 0.85
 local screen_height = 1050
 
+
+--------------------------------------------------------------
+-- Custom colors
+local colors = setmetatable({
+	health = {.45, .73, .27},
+	power = setmetatable({
+		['MANA'] 		= { 0.27, 0.53, 0.73 },
+		['RAGE'] 		= { 0.73, 0.27, 0.27 },
+		['ENERGY'] 	= { 1.00, 1.00, 0.45 },
+	}, {__index = oUF.colors.power}),
+}, {__index = oUF.colors})
+
+--------------------------------------------------------------
 -- Custom tags
 local siValue = function(val)
 	if(val >= 1e6) then
@@ -224,11 +237,10 @@ function addonNS.CommonUnitSetup(self, unit, isSingle)
 	}
 
 	-- Unit name
-	local right_offset = 33
 	local name = health:CreateFontString(nil, "OVERLAY")
-	name:SetPoint("LEFT", health, "LEFT", 4)
 	name:SetPoint("TOP")
 	name:SetPoint("BOTTOM")
+	name:SetPoint("LEFT", health, "LEFT", 4)
 	name:SetPoint("RIGHT", healthText, 'LEFT', -2)
 	name:SetJustifyH("LEFT"); 
 	name:SetTextColor(1, 1, 1)
@@ -267,6 +279,9 @@ function addonNS.CommonUnitSetup(self, unit, isSingle)
 	-- Hook up events
 	self:RegisterEvent('UNIT_NAME_UPDATE', UpdateName)
 	table.insert(self.__elements, UpdateName)
+
+	-- Hook  up custom colors
+	self.colors = colors
 
 	return self
 end
