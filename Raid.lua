@@ -13,19 +13,24 @@ oUF:RegisterStyle('oUF_Quaiche - Raid', Layout)
 
 oUF:Factory(function(self)
 	self:SetActiveStyle('oUF_Quaiche - Raid')
-	local raid = self:SpawnHeader(nil, nil, 'raid',
-	'showPlayer', true,
-	'showRaid', true,
-	'groupBy', 'GROUP',
-	'groupFilter', '1,2,3,4,5,6,7,8',
-	'groupingOrder', '1,2,3,4,5,6,7,8',
-	'maxColumns', 8,
-	'unitsPerColumn', 5,
-	'columnSpacing', 3,
-	'yOffset', -3,
-	'oUF-initialConfigFunction', [[
-		self:SetWidth(80)
-		self:SetHeight(25)
-	]])
-	raid:SetPoint('BOTTOMLEFT', UIParent, 'BOTTOM', 145, 100)
+	local raid = {}
+	
+	for group = 1, NUM_RAID_GROUPS do
+		local header = self:SpawnHeader(nil, nil, 'party,raid',
+			'showPlayer', true,
+			'showParty', true,
+			'showRaid', true,
+			'groupFilter', tostring(group),
+			'yOffset', -3,
+			'oUF-initialConfigFunction', [[
+				self:SetWidth(80);
+				self:SetHeight(25)
+			]])
+		if group > 1 then
+			header:SetPoint('TOPLEFT', raid[group-1], 'TOPRIGHT', 4, 0)
+		else
+			header:SetPoint('BOTTOMLEFT', UIParent, 'BOTTOM', 145, 100)
+		end
+		raid[group] = header
+	end
 end)
