@@ -141,6 +141,14 @@ local TEXTURE = [[Interface\AddOns\oUF_Quaiche\textures\minimalist]]
 -- e.g. ns.UnitSpecific["player"] = function(settings, self) end
 -- addonNS.UnitSpecific = {}
 
+function addonNS.AddRangeFading(self, ...)
+	local range = {
+		insideAlpha = 1.0,
+		outsideAlpha = 0.5,
+	}
+	self.Range = range
+end
+
 --------------------------------------------------------------
 -- Main entry point
 -- Common setup for all unit frames goes here

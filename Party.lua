@@ -4,6 +4,7 @@ local oUF = addonNS.oUF
 local function Layout(self, unit, isSingle)
 	-- Do common setup first
 	addonNS.CommonUnitSetup(self, unit, isSingle)
+	addonNS.AddRangeFading(self)
 
 	-- Resize party pet
 	if (self:GetAttribute("unitsuffix") == "pet") then

@@ -4,6 +4,7 @@ local oUF = addonNS.oUF
 local function Layout(self, unit, isSingle)
 	-- Do common setup first
 	addonNS.CommonUnitSetup(self, unit, isSingle)
+	addonNS.AddRangeFading(self)
 
 	-- Hide Blizz raid frames
 	CompactRaidFrameContainer:Hide()
@@ -16,7 +17,7 @@ oUF:Factory(function(self)
 	local raid = {}
 	
 	for group = 1, NUM_RAID_GROUPS do
-		local header = self:SpawnHeader(nil, nil, 'party,raid',
+		local header = self:SpawnHeader(nil, nil, 'raid',
 			'showPlayer', true,
 			'showParty', true,
 			'showRaid', true,
