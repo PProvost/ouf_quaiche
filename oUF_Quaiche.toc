@@ -1,13 +1,17 @@
-## Interface: 30300
-## Title: oUF_Quaiche (Solo)
+## Interface: 40000
+## Title: oUF_Quaiche
 ## Author: Quaiche
 ## Version: $project-version$
-## Notes: Player and target blocks for my personal oUF layout
-## Dependencies: oUF
-## OptionalDeps: LibOufQuaiche, tekDebug, oUF_AFKIcon, oUF_CombatFeedback, oUF_DebuffHighlights, oUF_DruidHots, oUF_HealComm4, oUF_ReadyCheck, oUF_RuneBar, oRA3
+## Notes: Quaiche's personal party and raid frames layout.
 ## X-License: Apache 2.0
 ## X-Credits: Haste, Tekkub, Caellian, Ammo, p3Lim, and many, many others.
 
-CustomTags.lua
-LibOufQuaiche.lua
-layout.lua
+libs\oUF\oUF.xml
+
+elements\healprediction.lua
+
+Templates.xml
+Common.lua
+Player.lua
+Party.lua
+Raid.lua
