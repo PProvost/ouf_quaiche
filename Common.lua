@@ -84,23 +84,6 @@ local menu = function(self)
 end
 
 --------------------------------------------------------------
--- Custom colors
---[[
-do
-	for powerType, value in pairs(oUF.colors.power) do
-		if powerType == "RAGE" then
-			oUF.colors.power[powerType] = { 0.75, 0.45, 0.25 }
-		elseif powerType == "ENERGY" then
-			oUF.colors.power[powerType] = { 1.0, 1.0, 0.45 }
-		elseif powerType == "MANA" then
-			oUF.colors.power[powerType] = { 0.25, 0.45, 0.75 }
-		end
-	end
-end
-]]
-
-
---------------------------------------------------------------
 -- Special oUF pseudo-events
 local PostUpdateHealth = function(Health, unit, min, max)
 	if(UnitIsDead(unit)) then

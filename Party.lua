@@ -17,7 +17,8 @@ oUF:RegisterStyle('oUF_Quaiche - Party', Layout)
 oUF:Factory(function(self)
 	self:SetActiveStyle('oUF_Quaiche - Party')
 	local party = self:SpawnHeader(nil, nil, 'solo,party',
-		'showPlayer', true,
+		'showSolo', false,
+		'showPlayer', false,
 		'showParty', true,
 		'yOffset', -3,
 		'template', 'oUF_QuaichePartyPets',
