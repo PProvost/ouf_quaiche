@@ -2,7 +2,9 @@ h2. About oUF_Quaiche
 
 __NOTE: Starting with v2.1 there are no longer any Buff/Debuff icons on the player or target frames. I have changed my UI to use SatrinaBuffFrames for these aura icons, so no longer need them in my layout.__
 
-This is my personal oUF layout. As with most oUF layouts, this addon requires oUF to function.
+This is my personal oUF layout. While I appreciate comments and suggestions, this is for MY personal UI so I am unlikely to change anything for you. 
+
+This addon DOES NOT require a separate installation of oUF to function. oUF is embedded.
 
 Provides the following Unit Frames
 * Player
@@ -13,30 +15,7 @@ Provides the following Unit Frames
 * Pet
 * Party
 * Party Pets
-* Raid (only groups 1-5)
-* Raid Pets
-
-Additional Features
-* AFK indication by coloring the player/party/raid names red
-* Built in healthbar threat coloring (no Banzai required)
-
-h2. Required Dependency
-
-You must download and install oUF to use this layout:
-"http://www.wowinterface.com/downloads/info9994-oUF.html":http://www.wowinterface.com/downloads/info9994-oUF.html
-
-h2. Recommended Optional Dependencies
-
-This layout support the following oUF Extensions to add extra features:
-
-* "oUF_CombatFeedback":http://www.wowinterface.com/downloads/info8769-oUFCombatFeedback.html - live feedback showing damage and heals on each unit
-* "oUF_DebuffHighlight":http://www.wowinterface.com/downloads/info8812-oUFDebuffHighlight.html - shows icons for dispellable debuffs
-* "oUF_DruidHots":http://wow.curse.com/downloads/wow-addons/details/ouf_druidhots.aspx - grid-style indicators for druid HoT spells
-* "oUF_HealComm":http://www.wowinterface.com/downloads/info9782-oUF_HealComm.html - Green overlay bars showing heals that are incoming from other players
-* "oUF_HealComm4":http://www.wowinterface.com/downloads/info14787-oUF_HealComm4.html - Different (better) green overlay bars showing heals that are incoming from other players
-* "oUF_MovableFrames":http://www.wowinterface.com/downloads/info15425-oUF_MovableFrames.html - Lets you reposition the frames anywhere on the screen
-* "oUF_ReadyCheck":http://www.wowinterface.com/downloads/info9856-oUFReadyCheck.html - Shows little ready check status icons on the party and raid frames
-* "oUF_RuneBar":http://www.wowinterface.com/downloads/info12616-oUFRuneBar.html - Rune bar for Death Knights
+* Raid
 
 h2. Bugs, Suggestions or Comments
 
