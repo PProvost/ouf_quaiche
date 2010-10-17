@@ -4,6 +4,49 @@ local oUF = addonNS.oUF
 -- Coords of the shard icon in the texture
 local c1, c2, c3, c4 = 0.01562500, 0.28125000, 0.00781250, 0.13281250
 
+-- Auto-fading helper functions
+local UnitMaxHealth = function(unit) return unit and not UnitIsDeadOrGhost(unit) and UnitHealth(unit) == UnitHealthMax(unit) end
+local UnitMaxMana = function(unit) return unit and not UnitIsDeadOrGhost(unit) and ((UnitPowerType(unit) ~= 1 and UnitPower(unit) == UnitPowerMax(unit)) or (UnitPower(unit) == 0)) end
+local UnitCasting = function(unit) return UnitCastingInfo(unit) ~= nil --[[or oUF_Quaiche.casting]] end
+
+local function SetupAutoFading(player, pet, focus)
+	local f = CreateFrame("Frame")
+
+	f:SetScript("OnEvent", function(frame, event, ...)
+		if event == "PLAYER_REGEN_DISABLED" then
+			-- Show it always if we're entering into combat
+			player:Show()
+			pet:Show()
+			focus:Show()
+		else
+			-- One of our other events fired, run the check to see if it should be visible
+			local event_unit = ...
+			if unit ~= event_unit then return end
+
+			if UnitMaxHealth(unit)
+				and UnitMaxMana(unit)
+				and (not UnitExists("target"))
+				and (not UnitExists("focus"))
+				and	(not UnitCasting(unit)) then 
+				player:Hide()
+				pet:Hide()
+				focus:Hide()
+			else
+				player:Show()
+				pet:Show()
+				focus:Show()
+			end
+		end
+	end)
+
+	f:RegisterEvent("PLAYER_REGEN_DISABLED")
+	f:RegisterEvent("UNIT_HEALTH")
+	f:RegisterEvent("UNIT_POWER")
+	f:RegisterEvent("UNIT_TARGET")
+	f:RegisterEvent("UNIT_SPELLCAST_START")
+	f:RegisterEvent("UNIT_SPELLCAST_STOP")
+end
+
 local function Layout_Full(self, unit, isSingle)
 	addonNS.CommonUnitSetup(self, unit, isSingle)
 
@@ -16,8 +59,8 @@ local function Layout_Full(self, unit, isSingle)
 	self.HealthString:SetFontObject(GameFontNormal)
 	self.Name:SetFontObject(GameFontNormal)
 
-	-- Warlock Soul Shards
 	if unit == "player" then
+		-- Warlock Soul Shards
 		local shards = {}
 		for i = 1, SHARD_BAR_NUM_SHARDS do
 			shards[i] = self.Power:CreateTexture(nil, 'OVERLAY')
@@ -29,6 +72,9 @@ local function Layout_Full(self, unit, isSingle)
 		shards[1]:SetPoint("RIGHT", shards[2], 'LEFT', -10)
 		shards[3]:SetPoint("LEFT", shards[2], 'RIGHT', 10)
 		self.SoulShards = shards
+
+		-- Healthy Fader
+		-- self.HealthyFader = {}
 	end
 end
 oUF:RegisterStyle('oUF_Quaiche - Full', Layout_Full)
@@ -52,6 +98,8 @@ oUF:Factory(function(self)
 	self:Spawn("focus"):SetPoint("BOTTOMLEFT", self.units.player, "TOPLEFT", 0, 2)
 	self:Spawn("focustarget"):SetPoint("BOTTOMRIGHT", self.units.target, "TOPRIGHT", 0, 2)
 	self:Spawn("targettarget"):SetPoint("BOTTOMLEFT", self.units.target, "TOPLEFT", 0, 2)
+
+	SetupAutoFading(self.units.player, self.units.pet, self.units.focus)
 
 end)
 
