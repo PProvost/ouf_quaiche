@@ -42,6 +42,11 @@ oUF.Tags['q:health'] = function(unit)
 end
 oUF.TagEvents['q:health'] = oUF.TagEvents.missinghp
 
+oUF.Tags['q:afk'] = function(unit)
+	return UnitIsAFK(unit) and "|cFF990000" or nil
+end
+oUF.TagEvents['q:afk'] = "PLAYER_FLAGS_CHANGED"
+
 oUF.Tags["q:health2"] = function(unit) 
 	if(not UnitIsConnected(unit) or UnitIsDead(unit) or UnitIsGhost(unit)) then return end
 
@@ -99,12 +104,14 @@ end
 
 local UpdateName = function(self, event, unit)
 	if (unit ~= self.unit) then return end
-	self.Name:SetText(UnitName(self.realUnit or unit))
+	local color = UnitIsAFK(unit) and "|cFF990000" or ""
+	self.Name:SetText(color..UnitName(self.realUnit or unit))
 end
 
 local PostCastStop = function(castbar, unit)
 	local self = castbar:GetParent()
-	self.Name:SetText(UnitName(self.realUnit or unit))
+	UpdateName(self, nil, unit)
+	--self.Name:SetText(UnitName(self.realUnit or unit))
 end
 
 local PostCastStopUpdate = function(self, event, unit)
