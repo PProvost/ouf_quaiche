@@ -5,9 +5,10 @@ local oUF = addonNS.oUF
 local c1, c2, c3, c4 = 0.01562500, 0.28125000, 0.00781250, 0.13281250
 
 -- Auto-fading helper functions
+local casting
 local UnitMaxHealth = function(unit) return unit and (not UnitIsDeadOrGhost(unit)) and (UnitHealth(unit) == UnitHealthMax(unit)) end
 local UnitMaxMana = function(unit) return unit and (not UnitIsDeadOrGhost(unit)) and ((UnitPowerType(unit) ~= 1 and UnitPower(unit) == UnitPowerMax(unit)) or (UnitPower(unit) == 0)) end
-local UnitCasting = function(unit) return (UnitCastingInfo(unit) ~= nil) --[[or oUF_Quaiche.casting]] end
+local UnitCasting = function(unit) return (UnitCastingInfo(unit) ~= nil) or casting end
 
 local function OnEvent(self, event, ...)
 	if event == "PLAYER_REGEN_DISABLED" then
@@ -19,6 +20,12 @@ local function OnEvent(self, event, ...)
 		-- One of our other events fired, run the check to see if it should be visible
 		local event_unit = ...
 		if event_unit ~= 'player' then return end
+
+		if event == "UNIT_SPELLCAST_CHANNEL_START" then
+			casting = true
+		elseif event == "UNIT_SPELLCAST_CHANNEL_STOP" then
+			casting = nil
+		end
 
 		if UnitMaxHealth('player')
 			and UnitMaxMana('player')
@@ -49,8 +56,8 @@ local function SetupAutoFading(player, pet, focus)
 	f:RegisterEvent("UNIT_HEALTH")
 	f:RegisterEvent("UNIT_POWER")
 	f:RegisterEvent("UNIT_TARGET")
-	f:RegisterEvent("UNIT_SPELLCAST_START")
-	f:RegisterEvent("UNIT_SPELLCAST_STOP")
+	f:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
+	f:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
 end
 
 local function Layout_Full(self, unit, isSingle)
