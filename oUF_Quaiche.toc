@@ -3,15 +3,18 @@
 ## Author: Quaiche
 ## Version: $project-version$
 ## Notes: Quaiche's personal party and raid frames layout.
+## SavedVariables: oUF_QuaicheDB
 ## X-License: Apache 2.0
 ## X-Credits: Haste, Tekkub, Caellian, Ammo, p3Lim, and many, many others.
 
 libs\oUF\oUF.xml
 
 elements\healprediction.lua
+elements\debuffHighlight.lua
 
 Templates.xml
 Common.lua
 Solo.lua
 Party.lua
 Raid.lua
+Movable.lua

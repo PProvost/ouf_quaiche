@@ -5,6 +5,7 @@ local function Layout(self, unit, isSingle)
 	-- Do common setup first
 	addonNS.CommonUnitSetup(self, unit, isSingle)
 	addonNS.AddRangeFading(self)
+	addonNS.AddDebuffHighlighting(self)
 
 	-- Resize party pet
 	if (self:GetAttribute("unitsuffix") == "pet") then

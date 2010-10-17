@@ -136,11 +136,7 @@ end
 local TEXTURE = [[Interface\AddOns\oUF_Quaiche\textures\minimalist]]
 
 --------------------------------------------------------------
--- Holder for unit specific helper functions
--- To use set a unit function from the layout
--- e.g. ns.UnitSpecific["player"] = function(settings, self) end
--- addonNS.UnitSpecific = {}
-
+-- Adds Range fading the given unit frame
 function addonNS.AddRangeFading(self, ...)
 	local range = {
 		insideAlpha = 1.0,
@@ -149,9 +145,13 @@ function addonNS.AddRangeFading(self, ...)
 	self.Range = range
 end
 
+function addonNS.AddDebuffHighlighting(self, ...)
+	self.DebuffHighlightBackdrop = true
+	self.DebuffHighlightFilter = true
+end
+
 --------------------------------------------------------------
--- Main entry point
--- Common setup for all unit frames goes here
+-- Common setup for all unit frames
 function addonNS.CommonUnitSetup(self, unit, isSingle)
 
 	-- Layout parameters
