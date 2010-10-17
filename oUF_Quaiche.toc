@@ -12,6 +12,6 @@ elements\healprediction.lua
 
 Templates.xml
 Common.lua
-Player.lua
+Solo.lua
 Party.lua
 Raid.lua
