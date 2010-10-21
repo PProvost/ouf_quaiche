@@ -4,7 +4,7 @@ __NOTE: Starting with v2.1 there are no longer any Buff/Debuff icons on the play
 
 This is my personal oUF layout. While I appreciate comments and suggestions, this is for MY personal UI so I am unlikely to change anything for you. 
 
-This addon DOES NOT require a separate installation of oUF to function. oUF is embedded.
+This addon DOES NOT require a separate installation of oUF to function. oUF and oUF_MovableFrames are both embedded.
 
 Provides the following Unit Frames
 * Player
