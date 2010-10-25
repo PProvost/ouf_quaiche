@@ -141,6 +141,7 @@ end
 --------------------------------------------------------------
 -- Common statusbar texture
 local TEXTURE = [[Interface\AddOns\oUF_Quaiche\textures\minimalist]]
+addonNS.TEXTURE = TEXTURE
 
 --------------------------------------------------------------
 -- Adds Range fading the given unit frame

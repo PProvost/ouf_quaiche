@@ -60,6 +60,14 @@ local function SetupAutoFading(player, pet, focus)
 	f:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
 end
 
+local PostCastStart = function(Castbar, unit, spell, spellrank)
+	Castbar.Text:SetText(spell)
+end
+
+local PostCastStop = function(Castbar, unit)
+	Castbar.Text:SetText('')
+end
+
 local function Layout_Full(self, unit, isSingle)
 	addonNS.CommonUnitSetup(self, unit, isSingle)
 
@@ -87,6 +95,23 @@ local function Layout_Full(self, unit, isSingle)
 			shards[3]:SetPoint("LEFT", shards[2], 'RIGHT', 10)
 			self.SoulShards = shards
 		end
+	elseif unit == "target" then
+		local castbar = CreateFrame("StatusBar", nil, self)
+		castbar:SetStatusBarTexture(addonNS.TEXTURE)
+		castbar:SetStatusBarColor(1, .25, .35, .5)
+		castbar:SetAllPoints(self.Power)
+		castbar:SetToplevel(true)
+		castbar:GetStatusBarTexture():SetHorizTile(false)
+		castbar.PostChannelStart = PostCastStart
+		castbar.PostCastStart = PostCastStart
+		castbar.PostCastStop = PostCastStop
+		castbar.PostChannelStop = PostCastStop
+		self.Castbar = castbar
+
+		local castbarText = castbar:CreateFontString("OVERLAY")
+		castbarText:SetAllPoints()
+		castbarText:SetFontObject(GameFontNormalSmall)
+		self.Castbar.Text = castbarText
 	end
 end
 oUF:RegisterStyle('oUF_Quaiche - Full', Layout_Full)
