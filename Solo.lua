@@ -31,7 +31,9 @@ local function OnEvent(self, event, ...)
 			and UnitMaxMana('player')
 			and (not UnitExists("target"))
 			and (not UnitExists("focus"))
-			and	(not UnitCasting('player')) then 
+			and	(not UnitCasting('player'))
+			and (not UnitIsAFK('player'))
+		then
 			self.player:Disable()
 			self.pet:Disable()
 			self.focus:Disable()
@@ -52,6 +54,8 @@ local function SetupAutoFading(player, pet, focus)
 
 	f:SetScript("OnEvent", OnEvent)
 
+	f:RegisterEvent("PLAYER_ENTERING_WORLD")
+	f:RegisterEvent("PLAYER_FLAGS_CHANGED")
 	f:RegisterEvent("PLAYER_REGEN_DISABLED")
 	f:RegisterEvent("UNIT_HEALTH")
 	f:RegisterEvent("UNIT_POWER")
