@@ -98,7 +98,7 @@ local function Layout_Full(self, unit, isSingle)
 	elseif unit == "target" then
 		local castbar = CreateFrame("StatusBar", nil, self)
 		castbar:SetStatusBarTexture(addonNS.TEXTURE)
-		castbar:SetStatusBarColor(1, .25, .35, .5)
+		castbar:SetStatusBarColor(0.65, 0.65, 0.65, .5)
 		castbar:SetAllPoints(self.Power)
 		castbar:SetToplevel(true)
 		castbar:GetStatusBarTexture():SetHorizTile(false)
