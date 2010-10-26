@@ -84,6 +84,18 @@ local function Layout_Full(self, unit, isSingle)
 	self.HealthString:SetFontObject(GameFontNormal)
 	self.Name:SetFontObject(GameFontNormal)
 
+	local info = self.Health:CreateFontString(nil, "OVERLAY")
+	info:SetPoint("TOPLEFT", 2, 0)
+	info:SetPoint("BOTTOMLEFT", 2, 0)
+	-- info:SetWidth(16)
+	info:SetJustifyH("LEFT")
+	info:SetFontObject(GameFontNormal)
+	-- info:SetTextColor(1.0, 0.82, 0)
+	self:Tag(info, "[level][shortclassification] ")
+	self.Info = info
+
+	self.Name:SetPoint("LEFT", info, "RIGHT")
+
 	if unit == "player" then
 		if select(2, UnitClass('player')) == "WARLOCK" then
 			-- Warlock Soul Shards
