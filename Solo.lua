@@ -152,6 +152,7 @@ oUF:Factory(function(self)
 	self:Spawn("focustarget"):SetPoint("BOTTOMRIGHT", self.units.target, "TOPRIGHT", 0, 2)
 	self:Spawn("targettarget"):SetPoint("BOTTOMLEFT", self.units.target, "TOPLEFT", 0, 2)
 
+	-- Comment out the following line if you don't like the auto-fading stuff
 	SetupAutoFading(self.units.player, self.units.pet, self.units.focus)
 
 end)
