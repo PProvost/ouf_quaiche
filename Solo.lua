@@ -97,7 +97,8 @@ local function Layout_Full(self, unit, isSingle)
 	self.Name:SetPoint("LEFT", info, "RIGHT")
 
 	if unit == "player" then
-		if select(2, UnitClass('player')) == "WARLOCK" then
+		local class = select(2, UnitClass('player'))
+		if class == "WARLOCK" then
 			-- Warlock Soul Shards
 			local shards = {}
 			for i = 1, SHARD_BAR_NUM_SHARDS do
@@ -110,6 +111,19 @@ local function Layout_Full(self, unit, isSingle)
 			shards[1]:SetPoint("RIGHT", shards[2], 'LEFT', -10)
 			shards[3]:SetPoint("LEFT", shards[2], 'RIGHT', 10)
 			self.SoulShards = shards
+		elseif class=="DRUID" or class=="ROGUE" then
+			-- Druid/rogue combo points
+			local cpoints = {}
+			for i = 1, MAX_COMBO_POINTS do
+				cpoints[i] = self.Power:CreateTexture(nil, 'OVERLAY')
+				cpoints[i]:SetSize(8,9)
+			end
+			cpoints[3]:SetPoint("CENTER", 0, -1)
+			cpoints[2]:SetPoint("RIGHT", cpoints[3], 'LEFT', -10)
+			cpoints[1]:SetPoint("RIGHT", cpoints[2], 'LEFT', -10)
+			cpoints[4]:SetPoint("LEFT", cpoints[3], 'RIGHT', 10)
+			cpoints[5]:SetPoint("LEFT", cpoints[4], 'RIGHT', 10)
+			self.CPoints = cpoints
 		end
 	elseif unit == "target" then
 		local castbar = CreateFrame("StatusBar", nil, self)
