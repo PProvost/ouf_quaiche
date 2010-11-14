@@ -125,6 +125,17 @@ local function Layout_Full(self, unit, isSingle)
 			cpoints[5]:SetPoint("LEFT", cpoints[4], 'RIGHT', 10)
 			self.CPoints = cpoints
 		end
+
+		local combat = self.Health:CreateTexture(nil, "OVERLAY")
+		combat:SetPoint("RIGHT", self.PvP, "LEFT")
+		combat:SetSize(16,16)
+		self.Combat = combat
+
+		local resting = self.Power:CreateTexture(nil, 'OVERLAY')
+		resting:SetPoint("CENTER", self, "BOTTOMLEFT")
+		resting:SetSize(16,16)
+		self.Resting = resting
+
 	elseif unit == "target" then
 		local castbar = CreateFrame("StatusBar", nil, self)
 		castbar:SetStatusBarTexture(addonNS.TEXTURE)

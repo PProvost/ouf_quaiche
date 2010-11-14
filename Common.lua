@@ -158,6 +158,20 @@ function addonNS.AddDebuffHighlighting(self, ...)
 	self.DebuffHighlightFilter = true
 end
 
+function addonNS.AddReadyCheck(self, ...)
+	local readyCheck = self.Health:CreateTexture(nil, 'OVERLAY')
+	readyCheck:SetSize(24,24)
+	readyCheck:SetPoint("CENTER", self, "CENTER")
+	self.ReadyCheck = readyCheck
+end
+
+function addonNS.AddLFDRole(self)
+	local lfdRole = self:CreateTexture(nil, 'OVERLAY')
+	lfdRole:SetSize(16, 16)
+	lfdRole:SetPoint("RIGHT", self, "LEFT", -4)
+	self.LFDRole = lfdRole
+end
+
 --------------------------------------------------------------
 -- Common setup for all unit frames
 function addonNS.CommonUnitSetup(self, unit, isSingle)
@@ -268,12 +282,6 @@ function addonNS.CommonUnitSetup(self, unit, isSingle)
 	raid_icon:SetPoint("CENTER", health, "CENTER")
 	raid_icon:SetSize(16, 16)
 	self.RaidIcon = raid_icon
-
-	-- LFD Role
-	local lfdRole = self:CreateTexture(nil, 'OVERLAY')
-	lfdRole:SetSize(16, 16)
-	lfdRole:SetPoint("RIGHT", self, "LEFT", -4)
-	self.LFDRole = lfdRole
 
 	-- Hook up events
 	self:RegisterEvent('UNIT_NAME_UPDATE', UpdateName)

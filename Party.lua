@@ -6,6 +6,8 @@ local function Layout(self, unit, isSingle)
 	addonNS.CommonUnitSetup(self, unit, isSingle)
 	addonNS.AddRangeFading(self)
 	addonNS.AddDebuffHighlighting(self)
+	addonNS.AddReadyCheck(self)
+	addonNS.AddLFDRole(self)
 
 	-- Resize party pet
 	if (self:GetAttribute("unitsuffix") == "pet") then

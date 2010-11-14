@@ -1,11 +1,12 @@
 h2. About oUF_Quaiche
 
-This is my personal oUF layout. While I appreciate comments and suggestions, this is for MY personal UI so I am unlikely to change anything for you. 
+This is my personal oUF layout. While I appreciate comments and suggestions, this is for MY personal UI so I
+am unlikely to change anything for you. 
 
-Before you ask, there are NO buffs or debuffs shown on the frames. This is by design as I use other addons to manage and display my buffs. You are welcome to change
-the code if you want them in your layout.
+Before you ask, there are NO buffs or debuffs shown on the frames. This is by design as I use other addons to 
+manage and display my buffs. You are welcome to change the code if you want them in your layout.
 
-This layout DOES NOT require a separate installation of oUF to function. oUF and oUF_MovableFrames are both embedded.
+This layout DOES NOT require a separate installation of oUF to function.
 
 Provides the following Unit Frames
 * Player
@@ -17,6 +18,16 @@ Provides the following Unit Frames
 * Party
 * Party Pets
 * Raid
+
+h2. Moving the frames
+
+In addition to making the layout standalone, I have also embedded haste's oUF_MovableFrames code into the layout. To
+unlock the frames for moving, type
+
+<pre>/oufq</pre>
+
+Once you're done moving them, you can relock them by repeating the same slash command. To reset the frames back to their
+original positions, open the options panel for oUF_Quaiche and remove the points from the list.
 
 h2. Bugs, Suggestions or Comments
 

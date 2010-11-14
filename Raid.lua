@@ -6,6 +6,7 @@ local function Layout(self, unit, isSingle)
 	addonNS.CommonUnitSetup(self, unit, isSingle)
 	addonNS.AddRangeFading(self)
 	addonNS.AddDebuffHighlighting(self)
+	addonNS.AddReadyCheck(self)
 
 	-- Hide Blizz raid frames
 	CompactRaidFrameContainer:Hide()
@@ -29,7 +30,7 @@ oUF:Factory(function(self)
 				self:SetHeight(25)
 			]])
 		if group > 1 then
-			header:SetPoint('TOPLEFT', raid[group-1], 'TOPRIGHT', 4, 0)
+			header:SetPoint('BOTTOMLEFT', raid[group-1], 'BOTTOMRIGHT', 4, 0)
 		else
 			header:SetPoint('BOTTOMLEFT', UIParent, 'BOTTOM', 145, 100)
 		end
