@@ -91,7 +91,7 @@ local function Layout_Full(self, unit, isSingle)
 	info:SetJustifyH("LEFT")
 	info:SetFontObject(GameFontNormal)
 	-- info:SetTextColor(1.0, 0.82, 0)
-	self:Tag(info, "[level][shortclassification] ")
+	self:Tag(info, "[difficulty][level][shortclassification] ")
 	self.Info = info
 
 	self.Name:SetPoint("LEFT", info, "RIGHT")
