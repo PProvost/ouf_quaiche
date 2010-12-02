@@ -653,8 +653,8 @@ do
 	InterfaceOptions_AddCategory(opt)
 end
 
-SLASH_OUF_QUAICHE = '/oufq'
-SlashCmdList['OUF_QUAICHE '] = function(inp)
+SLASH_OUF_QUAICHE1 = '/oufq'
+SlashCmdList['OUF_QUAICHE'] = function(inp)
 	if(InCombatLockdown()) then
 		return print"Frames cannot be moved while in combat. Bailing out."
 	end
