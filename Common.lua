@@ -189,9 +189,9 @@ function addonNS.CommonUnitSetup(self, unit, isSingle)
 	local power = CreateFrame("StatusBar", nil, self)
 	power:SetStatusBarTexture(TEXTURE)
 	power.frequentUpdates = true
-	power.colorTapping = true
 	power.colorDisconnected = true
 	power.colorPower = true
+	power.colorTapping = true
 	power:SetPoint("LEFT")
 	power:SetPoint("RIGHT")
 	power:SetPoint("BOTTOM")
@@ -210,6 +210,7 @@ function addonNS.CommonUnitSetup(self, unit, isSingle)
 	health.colorClass = true
 	health.colorClassPet = true
 	health.colorSmooth = true
+	health.colorTapping = true
 	health.frequentUpdates = true
 	health.PostUpdate = PostUpdateHealth
 	self.Health = health
