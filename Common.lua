@@ -102,6 +102,7 @@ local PostCastStart = function(castbar, unit, spell, spellrank)
 	castbar:GetParent().Name:SetText('×' .. spell)
 end
 
+--[[
 local UpdateName = function(self, event, unit)
 	if (unit ~= self.unit) then return end
 	local color = UnitIsAFK(unit) and "|cFF990000" or ""
@@ -118,6 +119,7 @@ local PostCastStopUpdate = function(self, event, unit)
 	if(unit ~= self.unit) then return end
 	return PostCastStop(self.Castbar, unit)
 end
+]]
 
 local PostUpdatePower = function(Power, unit, min, max)
 	local Health = Power:GetParent().Health
@@ -259,6 +261,7 @@ function addonNS.CommonUnitSetup(self, unit, isSingle)
 	name:SetJustifyH("LEFT"); 
 	name:SetTextColor(1, 1, 1)
 	name:SetFontObject(GameFontNormalSmall)
+	self:Tag(name, '[q:afk][name]')
 	self.Name = name
 
 	-- Leader icon
@@ -285,8 +288,10 @@ function addonNS.CommonUnitSetup(self, unit, isSingle)
 	self.RaidIcon = raid_icon
 
 	-- Hook up events
+	--[[
 	self:RegisterEvent('UNIT_NAME_UPDATE', UpdateName)
 	table.insert(self.__elements, UpdateName)
+	]]
 
 	-- Hook  up custom colors
 	self.colors = colors
