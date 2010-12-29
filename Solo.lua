@@ -11,6 +11,7 @@ local UnitMaxMana = function(unit) return unit and (not UnitIsDeadOrGhost(unit))
 local UnitCasting = function(unit) return (UnitCastingInfo(unit) ~= nil) or casting end
 
 local function OnEvent(self, event, ...)
+
 	if event == "PLAYER_REGEN_DISABLED" then
 		-- Show it always if we're entering into combat
 		self.player:Enable()
@@ -20,6 +21,9 @@ local function OnEvent(self, event, ...)
 		-- One of our other events fired, run the check to see if it should be visible
 		local event_unit = ...
 		if event_unit ~= 'player' then return end
+
+		-- Don't do anything if we're in combat, hopefully we got it right before this
+		if InCombatLockdown() then return end
 
 		if event == "UNIT_SPELLCAST_CHANNEL_START" then
 			casting = true
@@ -33,6 +37,7 @@ local function OnEvent(self, event, ...)
 			and (not UnitExists("focus"))
 			and	(not UnitCasting('player'))
 			and (not UnitIsAFK('player'))
+			and (not UnitUsingVehicle('player'))
 		then
 			self.player:Disable()
 			self.pet:Disable()
@@ -148,6 +153,10 @@ local function Layout_Full(self, unit, isSingle)
 		castbar.PostCastStop = PostCastStop
 		castbar.PostChannelStop = PostCastStop
 		self.Castbar = castbar
+
+		local healthText = self.HealthString
+		healthText:SetWidth(90)
+		self:Tag(healthText, "[dead][offline][q:health][q:perhp]")
 
 		local castbarText = castbar:CreateFontString("OVERLAY")
 		castbarText:SetAllPoints()

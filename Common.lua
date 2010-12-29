@@ -61,6 +61,19 @@ oUF.Tags["q:health2"] = function(unit)
 end
 oUF.TagEvents["q:health2"] = oUF.TagEvents.missinghp
 
+oUF.Tags['q:perhp'] = function(unit)
+	local m = UnitHealthMax(unit)
+	local h = UnitHealth(unit)
+	if h==m then return "" end
+
+	local result = 0
+	if(m > 0) then
+		result = math.floor(h/m*100+.5)
+	end
+	return " ("..result.."%)"	
+end
+oUF.TagEvents['q:perhp'] = "UNIT_HEALTH UNIT_MAXHEALTH"
+
 --------------------------------------------------------------
 -- Special powerbar handling
 local PostUpdatePower = function(self, event, unit, bar, min, max)
