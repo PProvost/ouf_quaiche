@@ -111,29 +111,6 @@ local PostUpdateHealth = function(Health, unit, min, max)
 	end
 end
 
-local PostCastStart = function(castbar, unit, spell, spellrank)
-	castbar:GetParent().Name:SetText('×' .. spell)
-end
-
---[[
-local UpdateName = function(self, event, unit)
-	if (unit ~= self.unit) then return end
-	local color = UnitIsAFK(unit) and "|cFF990000" or ""
-	self.Name:SetText(color..UnitName(self.realUnit or unit))
-end
-
-local PostCastStop = function(castbar, unit)
-	local self = castbar:GetParent()
-	UpdateName(self, nil, unit)
-	--self.Name:SetText(UnitName(self.realUnit or unit))
-end
-
-local PostCastStopUpdate = function(self, event, unit)
-	if(unit ~= self.unit) then return end
-	return PostCastStop(self.Castbar, unit)
-end
-]]
-
 local PostUpdatePower = function(Power, unit, min, max)
 	local Health = Power:GetParent().Health
 	if(min == 0 or max == 0 or not UnitIsConnected(unit)) then
