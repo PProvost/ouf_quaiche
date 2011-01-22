@@ -146,7 +146,7 @@ function addonNS.AddRangeFading(self, ...)
 end
 
 function addonNS.AddDebuffHighlighting(self, ...)
-	self.DebuffHighlightBackdrop = true
+	self.DebuffHighlight = self.Health
 	self.DebuffHighlightFilter = true
 end
 

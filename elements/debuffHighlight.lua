@@ -9,10 +9,10 @@ local oUF = ns.oUF
 local playerClass = select(2,UnitClass("player"))
 local CanDispel = {
 	PRIEST = { Magic = true, Disease = true, },
-	SHAMAN = { Poison = true, Disease = true, Curse = true, },
+	SHAMAN = { Magic = true, Curse = true, },
 	PALADIN = { Magic = true, Poison = true, Disease = true, },
 	MAGE = { Curse = true, },
-	DRUID = { Curse = true, Poison = true, }
+	DRUID = { Magic = true, Curse = true, Poison = true, }
 }
 local dispellist = CanDispel[playerClass] or {}
 local origColors = {}
