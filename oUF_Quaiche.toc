@@ -10,7 +10,6 @@
 libs\oUF\oUF.xml
 
 elements\healprediction.lua
-elements\debuffHighlight.lua
 
 Templates.xml
 Common.lua

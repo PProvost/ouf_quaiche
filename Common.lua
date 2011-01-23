@@ -8,6 +8,18 @@ local screen_height = 1050
 
 
 --------------------------------------------------------------
+-- Debuff display stuff
+local CanDispel = {
+	PRIEST = { Magic = true, Disease = true, },
+	SHAMAN = { Magic = true, Curse = true, },
+	PALADIN = { Magic = true, Poison = true, Disease = true, },
+	MAGE = { Curse = true, },
+	DRUID = { Magic = true, Curse = true, Poison = true, }
+}
+local playerClass = select(2,UnitClass("player"))
+local dispellist = CanDispel[playerClass] or {}
+
+--------------------------------------------------------------
 -- Custom colors
 local colors = setmetatable({
 	health = {.45, .73, .27},
@@ -75,16 +87,6 @@ end
 oUF.TagEvents['q:perhp'] = "UNIT_HEALTH UNIT_MAXHEALTH"
 
 --------------------------------------------------------------
--- Special powerbar handling
-local PostUpdatePower = function(self, event, unit, bar, min, max)
-	if(min == 0 or max == 0 or not UnitIsConnected(unit)) then
-		bar:SetValue(0)
-	elseif(UnitIsDead(unit) or UnitIsGhost(unit)) then
-		bar:SetValue(0)
-	end
-end
-
---------------------------------------------------------------
 -- Right click menu handler 
 local menu = function(self)
 	local unit = self.unit:sub(1, -2)
@@ -103,11 +105,33 @@ end
 
 --------------------------------------------------------------
 -- Special oUF pseudo-events
+local function GetDebuffType(unit, filter)
+	if not UnitCanAssist("player", unit) then return nil end
+	local i = 1
+	while true do
+		local _, _, texture, _, debufftype = UnitAura(unit, i, "HARMFUL")
+		if not texture then break end
+		if debufftype and not filter or (filter and dispellist[debufftype]) then
+			return debufftype, texture
+		end
+		i = i + 1
+	end
+end
+
+--------------------------------------------------------------
+-- Special oUF pseudo-events
 local PostUpdateHealth = function(Health, unit, min, max)
 	if(UnitIsDead(unit)) then
 		Health:SetValue(0)
 	elseif(UnitIsGhost(unit)) then
 		Health:SetValue(0)
+	end
+
+	-- Dispellable-debuff coloring
+	local debuffType, texture  = GetDebuffType(unit, true)
+	if debuffType then
+		local color = DebuffTypeColor[debuffType] 
+		Health:SetStatusBarColor(color.r, color.g, color.b, color.a or 0.5)
 	end
 end
 
@@ -115,7 +139,6 @@ local PostUpdatePower = function(Power, unit, min, max)
 	local Health = Power:GetParent().Health
 	if(min == 0 or max == 0 or not UnitIsConnected(unit)) then
 		Power:SetValue(0)
-		-- Health:SetHeight(22)
 	elseif(UnitIsDead(unit) or UnitIsGhost(unit)) then
 		Power:SetValue(0)
 	end
@@ -146,8 +169,8 @@ function addonNS.AddRangeFading(self, ...)
 end
 
 function addonNS.AddDebuffHighlighting(self, ...)
-	self.DebuffHighlight = self.Health
-	self.DebuffHighlightFilter = true
+	-- self.DebuffHighlight = self.Health
+	-- self.DebuffHighlightFilter = true
 end
 
 function addonNS.AddReadyCheck(self, ...)
