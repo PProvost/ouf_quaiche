@@ -8,16 +8,15 @@ local REJUVENATION = "Interface\\Icons\\Spell_Nature_Rejuvenation"
 local WILDGROWTH = "Interface\\Icons\\Ability_Druid_Flourish"
 
 local width, height = 4, 3
-local offsetX, offsetY = 3, -2
 local spacing = 2
 local order = { LIFEBLOOM, REJUVENATION, REGROWTH, WILDGROWTH }
 local state = {} -- Temp table to avoid memory thrashing
 
 local hots = {
-	[LIFEBLOOM] = { count = 3, color = { r=0, g=1.0, b=0 }, },
-	[REGROWTH] = { count = 1, color = { r=0, g=0, b=1 }, },
-	[REJUVENATION] = { count = 1, color = { r=1, g=1, b=0 }, },
-	[WILDGROWTH] = { count = 1, color = { r=1, g=0.5, b=0 }, },
+	[LIFEBLOOM] = { count = 3, color = { r=0, g=1.0, b=0 }, }, -- Green
+	[REGROWTH] = { count = 1, color = { r=1, g=1, b=0 }, },  -- Yellow
+	[REJUVENATION] = { count = 1, color = { r=1, g=0, b=1 }, }, -- Magenta
+	[WILDGROWTH] = { count = 1, color = { r=1, g=0.5, b=0 }, }, -- Orange
 }
 
 local Update = function(self, event, unit)
@@ -62,14 +61,14 @@ local Enable = function(self)
 
 	local i,j,k
 	local tex
-	local anchor, anchorPoint, x, y = self.Health, "TOPLEFT", offsetX, offsetY
+	local anchor, anchorPoint, x, y = self.Power, "TOP", -17, -2
 
 	self.druidHotsIndicators = {}
 	for j = 1,#order do
 		k = order[j]
 		self.druidHotsIndicators[k] = {}
 		for i = 1,hots[k].count do
-			tex = self.Health:CreateTexture(nil, "OVERLAY")
+			tex = self.Power:CreateTexture(nil, "OVERLAY")
 			tex:SetPoint("TOPLEFT", anchor, anchorPoint, x, y)
 			tex:SetTexture(hots[k].color.r, hots[k].color.g, hots[k].color.b)
 			tex:SetHeight(height)
