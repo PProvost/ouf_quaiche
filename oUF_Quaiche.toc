@@ -10,6 +10,7 @@
 libs\oUF\oUF.xml
 
 elements\healprediction.lua
+elements\druidhots.lua
 
 Templates.xml
 Common.lua
