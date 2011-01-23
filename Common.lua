@@ -104,7 +104,7 @@ local menu = function(self)
 end
 
 --------------------------------------------------------------
--- Special oUF pseudo-events
+-- Helper functions
 local function GetDebuffType(unit, filter)
 	if not UnitCanAssist("player", unit) then return nil end
 	local i = 1
@@ -118,6 +118,16 @@ local function GetDebuffType(unit, filter)
 	end
 end
 
+local function UpdateDebuffStatus(self, event, unit)
+	-- Dispellable-debuff coloring
+	if self.unit ~= unit then return end
+	local debuffType, texture  = GetDebuffType(unit, true)
+	if debuffType then
+		local color = DebuffTypeColor[debuffType] 
+		self.Health:SetStatusBarColor(color.r, color.g, color.b, color.a or 0.5)
+	end
+end
+
 --------------------------------------------------------------
 -- Special oUF pseudo-events
 local PostUpdateHealth = function(Health, unit, min, max)
@@ -127,12 +137,7 @@ local PostUpdateHealth = function(Health, unit, min, max)
 		Health:SetValue(0)
 	end
 
-	-- Dispellable-debuff coloring
-	local debuffType, texture  = GetDebuffType(unit, true)
-	if debuffType then
-		local color = DebuffTypeColor[debuffType] 
-		Health:SetStatusBarColor(color.r, color.g, color.b, color.a or 0.5)
-	end
+	UpdateDebuffStatus(Health:GetParent(), "UNIT_AURA", unit)
 end
 
 local PostUpdatePower = function(Power, unit, min, max)
@@ -305,6 +310,9 @@ function addonNS.CommonUnitSetup(self, unit, isSingle)
 	self:RegisterEvent('UNIT_NAME_UPDATE', UpdateName)
 	table.insert(self.__elements, UpdateName)
 	]]
+
+	-- Hook up the debuff highlighting
+	self:RegisterEvent("UNIT_AURA", UpdateDebuffStatus)
 
 	-- Hook  up custom colors
 	self.colors = colors
