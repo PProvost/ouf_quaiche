@@ -46,8 +46,10 @@ local function Update(object, event, unit)
 			end
 		elseif object.DebuffHighlightUseTexture then
 			object.DebuffHighlight:SetTexture(texture)
-		else
+		elseif object.DebuffHighlight.SetVertexColor then
 			object.DebuffHighlight:SetVertexColor(color.r, color.g, color.b, object.DebuffHighlightAlpha or .5)
+		elseif object.DebuffHighlight.SetStatusBarColor then
+			object.DebuffHighlight:SetStatusBarColor(color.r, color.g, color.b, object.DebuffHighlightAlpha or .5)
 		end
 	else
 		if object.DebuffHighlightBackdrop or object.DebuffHighlightBackdropBorder then
@@ -62,9 +64,12 @@ local function Update(object, event, unit)
 			end
 		elseif object.DebuffHighlightUseTexture then
 			object.DebuffHighlight:SetTexture(nil)
-		else
+		elseif object.DebuffHighlight.SetVertexColor then
 			local color = origColors[object]
 			object.DebuffHighlight:SetVertexColor(color.r, color.g, color.b, color.a)
+		elseif object.DebuffHighlight.SetStatusBarColor then
+			local color = origColors[object]
+			object.DebuffHighlight:SetStatusBarColor(color.r, color.g, color.b, color.a)
 		end
 	end
 end
@@ -89,8 +94,13 @@ local function Enable(object)
 		origBorderColors[object] = { r = r, g = g, b = b, a = a}
 	elseif not object.DebuffHighlightUseTexture then -- color debuffs
 		-- object.DebuffHighlight
-		local r, g, b, a = object.DebuffHighlight:GetVertexColor()
-		origColors[object] = { r = r, g = g, b = b, a = a}
+		if object.DebuffHighlight.GetVertexColor then
+			local r, g, b, a = object.DebuffHighlight:GetVertexColor()
+			origColors[object] = { r = r, g = g, b = b, a = a}
+		elseif object.DebuffHighlight.GetStatusBarColor then
+			local r, g, b, a = object.DebuffHighlight:GetStatusBarColor()
+			origColors[object] = { r = r, g = g, b = b, a = a}
+		end
 	end
 
 	return true
