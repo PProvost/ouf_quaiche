@@ -11,7 +11,6 @@ local UnitMaxMana = function(unit) return unit and (not UnitIsDeadOrGhost(unit))
 local UnitCasting = function(unit) return (UnitCastingInfo(unit) ~= nil) or casting end
 
 local function OnEvent(self, event, ...)
-
 	if event == "PLAYER_REGEN_DISABLED" then
 		-- Show it always if we're entering into combat
 		self.player:Enable()
@@ -31,12 +30,8 @@ local function OnEvent(self, event, ...)
 			casting = nil
 		end
 
-		if UnitMaxHealth('player')
-			and UnitMaxMana('player')
-			and (not UnitExists("target"))
-			and (not UnitExists("focus"))
-			and	(not UnitCasting('player'))
-			and (not UnitIsAFK('player'))
+		if UnitMaxHealth('player') and UnitMaxMana('player') and (not UnitExists("target"))
+			and (not UnitExists("focus")) and	(not UnitCasting('player')) and (not UnitIsAFK('player'))
 			and (not UnitUsingVehicle('player'))
 		then
 			self.player:Disable()
@@ -48,7 +43,6 @@ local function OnEvent(self, event, ...)
 			self.focus:Enable()
 		end
 	end
-
 end
 
 local function SetupAutoFading(player, pet, focus)
@@ -104,7 +98,6 @@ local function Layout_Full(self, unit, isSingle)
 	if unit == "player" then
 		local class = select(2, UnitClass('player'))
 		if class == "WARLOCK" then
-			-- Warlock Soul Shards
 			local shards = {}
 			for i = 1, SHARD_BAR_NUM_SHARDS do
 				shards[i] = self.Power:CreateTexture(nil, 'OVERLAY')
@@ -117,7 +110,6 @@ local function Layout_Full(self, unit, isSingle)
 			shards[3]:SetPoint("LEFT", shards[2], 'RIGHT', 10)
 			self.SoulShards = shards
 		elseif class=="DRUID" or class=="ROGUE" then
-			-- Druid/rogue combo points
 			local cpoints = {}
 			for i = 1, MAX_COMBO_POINTS do
 				cpoints[i] = self.Power:CreateTexture(nil, 'OVERLAY')
@@ -140,6 +132,14 @@ local function Layout_Full(self, unit, isSingle)
 		resting:SetPoint("CENTER", self, "BOTTOMLEFT")
 		resting:SetSize(16,16)
 		self.Resting = resting
+
+		local altPowerBar = CreateFrame("StatusBar", nil, self)
+		altPowerBar:SetStatusBarTexture(TEXTURE)
+		altPowerBar:SetPoint("TOPLEFT", self.Power, "BOTTOMLEFT")
+		altPowerBar:SetPoint("TOPRIGHT", self.Power, "BOTTOMRIGHT")
+		altPowerBar:SetHeight(12) 
+		altPowerBar:SetStatusBarColor(0.5, 0, 0)
+		self.AltPowerBar = altPowerBar
 
 	elseif unit == "target" then
 		local castbar = CreateFrame("StatusBar", nil, self)
@@ -188,6 +188,4 @@ oUF:Factory(function(self)
 
 	-- Comment out the following line if you don't like the auto-fading stuff
 	SetupAutoFading(self.units.player, self.units.pet, self.units.focus)
-
 end)
-

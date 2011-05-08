@@ -6,7 +6,6 @@
 local parent, ns = ...
 local oUF = ns.oUF
 
-local noop = function() end
 local UnitName = UnitName
 local GetTime = GetTime
 local UnitCastingInfo = UnitCastingInfo
@@ -270,7 +269,7 @@ local onUpdate = function(self, elapsed)
 
 		if(self.SafeZone) then
 			local width = self:GetWidth()
-			local _, _, ms = GetNetStats()
+			local _, _, _, ms = GetNetStats()
 			-- MADNESS!
 			local safeZonePercent = (width / self.max) * (ms / 1e5)
 			if(safeZonePercent > 1) then safeZonePercent = 1 end
@@ -312,7 +311,7 @@ local onUpdate = function(self, elapsed)
 
 		if(self.SafeZone) then
 			local width = self:GetWidth()
-			local _, _, ms = GetNetStats()
+			local _, _, _, ms = GetNetStats()
 			-- MADNESS!
 			local safeZonePercent = (width / self.max) * (ms / 1e5)
 			if(safeZonePercent > 1) then safeZonePercent = 1 end
@@ -381,11 +380,11 @@ local Enable = function(object, unit)
 
 		if(object.unit == "player") then
 			CastingBarFrame:UnregisterAllEvents()
-			CastingBarFrame.Show = noop
+			CastingBarFrame.Show = CastingBarFrame.Hide
 			CastingBarFrame:Hide()
 		elseif(object.unit == 'pet') then
 			PetCastingBarFrame:UnregisterAllEvents()
-			PetCastingBarFrame.Show = noop
+			PetCastingBarFrame.Show = PetCastingBarFrame.Hide
 			PetCastingBarFrame:Hide()
 		end
 

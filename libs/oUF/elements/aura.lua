@@ -5,7 +5,7 @@ local VISIBLE = 1
 local HIDDEN = 0
 
 local UpdateTooltip = function(self)
-	GameTooltip:SetUnitAura(self.parent:GetParent().unit, self:GetID(), self.filter)
+	GameTooltip:SetUnitAura(self.parent.__owner.unit, self:GetID(), self.filter)
 end
 
 local OnEnter = function(self)
@@ -30,7 +30,7 @@ local createAuraIcon = function(icons, index)
 	local cd = CreateFrame("Cooldown", nil, button)
 	cd:SetAllPoints(button)
 
-	local icon = button:CreateTexture(nil, "BACKGROUND")
+	local icon = button:CreateTexture(nil, "BORDER")
 	icon:SetAllPoints(button)
 
 	local count = button:CreateFontString(nil, "OVERLAY")
@@ -80,15 +80,16 @@ local customFilter = function(icons, unit, icon, name, rank, texture, count, dty
 	end
 end
 
-local updateIcon = function(unit, icons, index, offset, filter, isDebuff, max)
-	local name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID = UnitAura(unit, index, filter)
+local updateIcon = function(unit, icons, index, offset, filter, isDebuff, visible)
+	local name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff = UnitAura(unit, index, filter)
 	if(name) then
-		local icon = icons[index + offset]
+		local n = visible + offset + 1
+		local icon = icons[n]
 		if(not icon) then
-			icon = (icons.CreateIcon or createAuraIcon) (icons, index)
+			icon = (icons.CreateIcon or createAuraIcon) (icons, n)
 		end
 
-		local show = (icons.CustomFilter or customFilter) (icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID)
+		local show = (icons.CustomFilter or customFilter) (icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
 		if(show) then
 			-- We might want to consider delaying the creation of an actual cooldown
 			-- object to this point, but I think that will just make things needlessly
@@ -137,9 +138,6 @@ local updateIcon = function(unit, icons, index, offset, filter, isDebuff, max)
 
 			return VISIBLE
 		else
-			-- Hide the icon in-case we are in the middle of the stack.
-			icon:Hide()
-
 			return HIDDEN
 		end
 	end
@@ -189,22 +187,23 @@ local filterIcons = function(unit, icons, filter, limit, isDebuff, offset, dontH
 	local index = 1
 	local visible = 0
 	while(visible < limit) do
-		local result = updateIcon(unit, icons, index, offset, filter, isDebuff)
+		local result = updateIcon(unit, icons, index, offset, filter, isDebuff, visible)
 		if(not result) then
 			break
 		elseif(result == VISIBLE) then
 			visible = visible + 1
 		end
+
 		index = index + 1
 	end
 
 	if(not dontHide) then
-		for i = offset + index, #icons do
+		for i = visible + offset + 1, #icons do
 			icons[i]:Hide()
 		end
 	end
 
-	return visible, index - 1
+	return visible
 end
 
 local Update = function(self, event, unit)
@@ -218,10 +217,10 @@ local Update = function(self, event, unit)
 		local numDebuffs = auras.numDebuffs or 40
 		local max = numBuffs + numDebuffs
 
-		local visibleBuffs, offset = filterIcons(unit, auras, auras.buffFilter or auras.filter or 'HELPFUL', numBuffs, nil,  0, true)
+		local visibleBuffs = filterIcons(unit, auras, auras.buffFilter or auras.filter or 'HELPFUL', numBuffs, nil, 0, true)
 		auras.visibleBuffs = visibleBuffs
 
-		auras.visibleDebuffs = filterIcons(unit, auras, auras.debuffFilter or auras.filter or 'HARMFUL', numDebuffs,true,  offset)
+		auras.visibleDebuffs = filterIcons(unit, auras, auras.debuffFilter or auras.filter or 'HARMFUL', numDebuffs, true, visibleBuffs)
 		auras.visibleAuras = auras.visibleBuffs + auras.visibleDebuffs
 
 		if(auras.PreSetPosition) then auras:PreSetPosition(max) end
