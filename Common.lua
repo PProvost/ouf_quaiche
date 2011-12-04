@@ -1,5 +1,7 @@
 local addonName, addonNS = ...
+
 local oUF = addonNS.oUF
+assert(oUF, "oUF not loaded")
 
 --------------------------------------------------------------
 -- Common configuration

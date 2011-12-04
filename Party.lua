@@ -22,7 +22,7 @@ oUF:Factory(function(self)
 	self:SetActiveStyle('oUF_Quaiche - Party')
 	local party = self:SpawnHeader(nil, nil, 'solo,party',
 		'showSolo', false,
-		'showPlayer', false,
+		'showPlayer', true,
 		'showParty', true,
 		'yOffset', -3,
 		'template', 'oUF_QuaichePartyPets',

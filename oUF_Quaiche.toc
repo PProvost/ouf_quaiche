@@ -1,4 +1,4 @@
-## Interface: 40000
+## Interface: 40300
 ## Title: oUF_Quaiche
 ## Author: Quaiche
 ## Version: $project-version$
@@ -11,6 +11,7 @@ libs\oUF\oUF.xml
 
 elements\healprediction.lua
 elements\druidhots.lua
+elements\priesthots.lua
 
 Templates.xml
 Common.lua
