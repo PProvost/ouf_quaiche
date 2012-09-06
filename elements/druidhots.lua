@@ -1,5 +1,5 @@
 local parent, ns = ...
-local oUF = ns.oUF
+local oUF = ns.oUF or oUF
 
 -- Icon textures for locale-neutral identification of buffs
 local LIFEBLOOM = "Interface\\Icons\\INV_Misc_Herb_Felblossom"

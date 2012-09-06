@@ -1,5 +1,5 @@
-local addonName, addonNS = ...
-local oUF = addonNS.oUF
+local _, ns = ...
+local oUF = ns.oUF or oUF
 
 local function Layout(self, unit, isSingle)
 	-- Do common setup first

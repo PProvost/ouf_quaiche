@@ -1,13 +1,13 @@
-local addonName, addonNS = ...
-local oUF = addonNS.oUF
+local _, ns = ...
+local oUF = ns.oUF or oUF
 
 local function Layout(self, unit, isSingle)
 	-- Do common setup first
-	addonNS.CommonUnitSetup(self, unit, isSingle)
-	addonNS.AddRangeFading(self)
-	addonNS.AddDebuffHighlighting(self)
-	addonNS.AddReadyCheck(self)
-	addonNS.AddLFDRole(self)
+	ns.CommonUnitSetup(self, unit, isSingle)
+	ns.AddRangeFading(self)
+	ns.AddDebuffHighlighting(self)
+	ns.AddReadyCheck(self)
+	ns.AddLFDRole(self)
 
 	-- Resize party pet
 	if (self:GetAttribute("unitsuffix") == "pet") then

@@ -1,6 +1,6 @@
 local addonName, addonNS = ...
 
-local oUF = addonNS.oUF
+local oUF = addonNS.oUF or oUF
 assert(oUF, "oUF not loaded")
 
 --------------------------------------------------------------
@@ -44,7 +44,10 @@ local siValue = function(val)
 	end
 end
 
-oUF.Tags['q:health'] = function(unit)
+local tags = oUF.Tags.Methods or oUF.Tags
+local tagevents = oUF.TagEvents or oUF.Tags.Events
+
+tags['q:health'] = function(unit)
 	if(not UnitIsConnected(unit) or UnitIsDead(unit) or UnitIsGhost(unit)) then return end
 
 	local min, max = UnitHealth(unit), UnitHealthMax(unit)
@@ -54,14 +57,14 @@ oUF.Tags['q:health'] = function(unit)
 		return siValue(min)
 	end
 end
-oUF.TagEvents['q:health'] = oUF.TagEvents.missinghp
+tagevents['q:health'] = tagevents.missinghp
 
-oUF.Tags['q:afk'] = function(unit)
+tags['q:afk'] = function(unit)
 	return UnitIsAFK(unit) and "|cFF990000" or nil
 end
-oUF.TagEvents['q:afk'] = "PLAYER_FLAGS_CHANGED"
+tagevents['q:afk'] = "PLAYER_FLAGS_CHANGED"
 
-oUF.Tags["q:health2"] = function(unit) 
+tags["q:health2"] = function(unit) 
 	if(not UnitIsConnected(unit) or UnitIsDead(unit) or UnitIsGhost(unit)) then return end
 
 	local min, max = UnitHealth(unit), UnitHealthMax(unit)
@@ -73,9 +76,9 @@ oUF.Tags["q:health2"] = function(unit)
 		return max
 	end
 end
-oUF.TagEvents["q:health2"] = oUF.TagEvents.missinghp
+tagevents["q:health2"] = tagevents.missinghp
 
-oUF.Tags['q:perhp'] = function(unit)
+tags['q:perhp'] = function(unit)
 	local m = UnitHealthMax(unit)
 	local h = UnitHealth(unit)
 	if h==m then return "" end
@@ -86,7 +89,7 @@ oUF.Tags['q:perhp'] = function(unit)
 	end
 	return " ("..result.."%)"	
 end
-oUF.TagEvents['q:perhp'] = "UNIT_HEALTH UNIT_MAXHEALTH"
+tagevents['q:perhp'] = "UNIT_HEALTH UNIT_MAXHEALTH"
 
 --------------------------------------------------------------
 -- Right click menu handler 

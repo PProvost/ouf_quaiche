@@ -1,5 +1,5 @@
-local addonName, addonNS = ...
-local oUF = addonNS.oUF
+local _, ns = ...
+local oUF = ns.oUF or oUF
 
 -- Coords of the shard icon in the texture
 local c1, c2, c3, c4 = 0.01562500, 0.28125000, 0.00781250, 0.13281250
@@ -72,7 +72,7 @@ local PostCastStop = function(Castbar, unit)
 end
 
 local function Layout_Full(self, unit, isSingle)
-	addonNS.CommonUnitSetup(self, unit, isSingle)
+	ns.CommonUnitSetup(self, unit, isSingle)
 
 	-- Tweak the size a bit
 	self.Power:SetHeight(10)
@@ -96,32 +96,14 @@ local function Layout_Full(self, unit, isSingle)
 	self.Name:SetPoint("LEFT", info, "RIGHT")
 
 	if unit == "player" then
-		local class = select(2, UnitClass('player'))
-		if class == "WARLOCK" then
-			local shards = {}
-			for i = 1, SHARD_BAR_NUM_SHARDS do
-				shards[i] = self.Power:CreateTexture(nil, 'OVERLAY')
-				shards[i]:SetTexture("Interface\\PlayerFrame\\UI-WarlockShard")
-				shards[i]:SetTexCoord(c1, c2, c3, c4)
-				shards[i]:SetSize(12,12)
-			end
-			shards[2]:SetPoint("CENTER")
-			shards[1]:SetPoint("RIGHT", shards[2], 'LEFT', -10)
-			shards[3]:SetPoint("LEFT", shards[2], 'RIGHT', 10)
-			self.SoulShards = shards
-		elseif class=="DRUID" or class=="ROGUE" then
-			local cpoints = {}
-			for i = 1, MAX_COMBO_POINTS do
-				cpoints[i] = self.Power:CreateTexture(nil, 'OVERLAY')
-				cpoints[i]:SetSize(8,9)
-			end
-			cpoints[3]:SetPoint("CENTER", 0, -1)
-			cpoints[2]:SetPoint("RIGHT", cpoints[3], 'LEFT', -10)
-			cpoints[1]:SetPoint("RIGHT", cpoints[2], 'LEFT', -10)
-			cpoints[4]:SetPoint("LEFT", cpoints[3], 'RIGHT', 10)
-			cpoints[5]:SetPoint("LEFT", cpoints[4], 'RIGHT', 10)
-			self.CPoints = cpoints
+		local classIcons = {}
+		for index=1,5 do
+			local icon = self:CreateTexture(nil, 'BACKGROUND')
+			icon:SetSize(12,12)
+			icon:SetPoint('TOPLEFT', self, 'BOTTOMLEFT', index * icon:GetWidth(), 0)
+			classIcons[index] = icon
 		end
+		self.ClassIcons = classIcons
 
 		local combat = self.Health:CreateTexture(nil, "OVERLAY")
 		combat:SetPoint("RIGHT", self.PvP, "LEFT")
@@ -143,7 +125,7 @@ local function Layout_Full(self, unit, isSingle)
 
 	elseif unit == "target" then
 		local castbar = CreateFrame("StatusBar", nil, self)
-		castbar:SetStatusBarTexture(addonNS.TEXTURE)
+		castbar:SetStatusBarTexture(ns.TEXTURE)
 		castbar:SetStatusBarColor(0.65, 0.65, 0.65, .5)
 		castbar:SetAllPoints(self.Power)
 		castbar:SetToplevel(true)
@@ -167,7 +149,7 @@ end
 oUF:RegisterStyle('oUF_Quaiche - Full', Layout_Full)
 
 local function Layout_Half(self, unit, isSingle)
-	addonNS.CommonUnitSetup(self, unit, isSingle)
+	ns.CommonUnitSetup(self, unit, isSingle)
 
 	self.Power:SetHeight(2)
 	self:SetSize(108, 18)
@@ -177,15 +159,19 @@ oUF:RegisterStyle('oUF_Quaiche - Half', Layout_Half)
 oUF:Factory(function(self)
 
 	self:SetActiveStyle('oUF_Quaiche - Full')
-	self:Spawn('player'):SetPoint('CENTER', UIParent, 'CENTER', -120, -140)
-	self:Spawn('target'):SetPoint('CENTER', UIParent, 'CENTER', 120, -140)
+	local player = self:Spawn('player')
+	player:SetPoint('CENTER', UIParent, 'CENTER', -120, -140)
+	local target = self:Spawn('target')
+	target:SetPoint('CENTER', UIParent, 'CENTER', 120, -140)
 
 	self:SetActiveStyle('oUF_Quaiche - Half')
-	self:Spawn("pet"):SetPoint("BOTTOMRIGHT", self.units.player, "TOPRIGHT", 0, 2)
-	self:Spawn("focus"):SetPoint("BOTTOMLEFT", self.units.player, "TOPLEFT", 0, 2)
-	self:Spawn("focustarget"):SetPoint("BOTTOMRIGHT", self.units.target, "TOPRIGHT", 0, 2)
-	self:Spawn("targettarget"):SetPoint("BOTTOMLEFT", self.units.target, "TOPLEFT", 0, 2)
+	local pet = self:Spawn("pet")
+	pet:SetPoint("BOTTOMRIGHT", player, "TOPRIGHT", 0, 2)
+	local focus = self:Spawn("focus")
+	focus:SetPoint("BOTTOMLEFT", player, "TOPLEFT", 0, 2)
+	self:Spawn("focustarget"):SetPoint("BOTTOMRIGHT", target, "TOPRIGHT", 0, 2)
+	self:Spawn("targettarget"):SetPoint("BOTTOMLEFT", target, "TOPLEFT", 0, 2)
 
 	-- Comment out the following line if you don't like the auto-fading stuff
-	SetupAutoFading(self.units.player, self.units.pet, self.units.focus)
+	SetupAutoFading(player, pet, focus)
 end)

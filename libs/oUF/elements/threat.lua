@@ -1,3 +1,35 @@
+--[[ Element: Threat Icon
+
+ Handles updating and toggles visibility of current threat level icon.
+
+ Widget
+
+ Threat - A Texture used to display the current threat level.
+
+ Notes
+
+ This element updates by changing colors of the texture.
+
+ The default threat icon will be used if the UI widget is a texture and doesn't
+ have a texture or color defined.
+
+ Examples
+
+   -- Position and size
+   local Threat = self:CreateTexture(nil, 'OVERLAY')
+   Threat:SetSize(16, 16)
+   Threat:SetPoint('TOPRIGHT', self)
+   
+   -- Register it with oUF
+   self.Threat = Threat
+
+ Hooks
+
+ Override(self) - Used to completely override the internal update function.
+                  Removing the table key entry will make the element fall-back
+                  to its internal function again.
+]]
+
 local parent, ns = ...
 local oUF = ns.oUF
 
@@ -10,8 +42,9 @@ local Update = function(self, event, unit)
 	unit = unit or self.unit
 	local status = UnitThreatSituation(unit)
 
+	local r, g, b
 	if(status and status > 0) then
-		local r, g, b = GetThreatStatusColor(status)
+		r, g, b = GetThreatStatusColor(status)
 		threat:SetVertexColor(r, g, b)
 		threat:Show()
 	else
@@ -19,7 +52,7 @@ local Update = function(self, event, unit)
 	end
 
 	if(threat.PostUpdate) then
-		return threat:PostUpdate(unit, status)
+		return threat:PostUpdate(unit, status, r, g, b)
 	end
 end
 
