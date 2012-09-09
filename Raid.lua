@@ -3,10 +3,10 @@ local oUF = ns.oUF or oUF
 
 local function Layout(self, unit, isSingle)
 	-- Do common setup first
-	addonNS.CommonUnitSetup(self, unit, isSingle)
-	addonNS.AddRangeFading(self)
-	addonNS.AddDebuffHighlighting(self)
-	addonNS.AddReadyCheck(self)
+	ns.CommonUnitSetup(self, unit, isSingle)
+	ns.AddRangeFading(self)
+	ns.AddDebuffHighlighting(self)
+	ns.AddReadyCheck(self)
 
 	-- Hide Blizz raid frames
 	CompactRaidFrameContainer:Hide()
