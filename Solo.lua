@@ -98,7 +98,7 @@ local function Layout_Full(self, unit, isSingle)
 	if unit == "player" then
 		local classIcons = {}
 		for index=1,5 do
-			local icon = self.Power:CreateTexture(nil, 'BACKGROUND')
+			local icon = self.Power:CreateTexture(nil, 'OVERLAY')
 			icon:SetSize(12,12)
 			icon:SetPoint('BOTTOMLEFT', self.Power, 'BOTTOMLEFT', index * icon:GetWidth(), 0)
 			classIcons[index] = icon
