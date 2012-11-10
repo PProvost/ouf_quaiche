@@ -105,6 +105,15 @@ local function Layout_Full(self, unit, isSingle)
 		end
 		self.ClassIcons = classIcons
 
+		local cpoints = {}
+		for index = 1, MAX_COMBO_POINTS do
+			local cpoint = self.Power:CreateTexture(nil, 'OVERLAY')
+			cpoint:SetSize(12,16)
+			cpoint:SetPoint('BOTTOMLEFT', self.Power, 'BOTTOMLEFT', index * cpoint:GetWidth(), 0)
+			cpoints[index] = cpoint
+		end
+		self.CPoints = cpoints
+
 		local combat = self.Health:CreateTexture(nil, "OVERLAY")
 		combat:SetPoint("RIGHT", self.PvP, "LEFT")
 		combat:SetSize(16,16)
