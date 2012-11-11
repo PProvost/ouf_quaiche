@@ -124,12 +124,11 @@ local function Layout_Full(self, unit, isSingle)
 		resting:SetSize(16,16)
 		self.Resting = resting
 
-		local altPowerBar = CreateFrame("StatusBar", nil, self)
+		local altPowerBar = CreateFrame('StatusBar', nil, self)
 		altPowerBar:SetStatusBarTexture(TEXTURE)
-		altPowerBar:SetPoint("TOPLEFT", self.Power, "BOTTOMLEFT")
-		altPowerBar:SetPoint("TOPRIGHT", self.Power, "BOTTOMRIGHT")
-		altPowerBar:SetHeight(12) 
-		altPowerBar:SetStatusBarColor(0.5, 0, 0)
+		altPowerBar:SetHeight(20) 
+		altPowerBar:SetWidth(120)
+		altPowerBar:SetPoint('CENTER', -300)
 		self.AltPowerBar = altPowerBar
 
 	elseif unit == "target" then
