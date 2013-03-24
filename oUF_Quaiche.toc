@@ -4,7 +4,6 @@
 ## Version: $project-version$
 ## Notes: Quaiche's personal party and raid frames layout.
 ## SavedVariables: oUF_QuaicheDB
-## X-Dependencies: oUF
 ## X-License: Apache 2.0
 ## X-Credits: Haste, Tekkub, Caellian, Ammo, p3Lim, and many, many others.
 
