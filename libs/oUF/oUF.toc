@@ -1,8 +1,8 @@
-## Interface: 50001
+## Interface: 50200
 ## Title: oUF
 ## Author: Haste
-## Version: 1.6.0
-## OptionalDeps: !ClassColors, Clique
+## Version: 1.6.4
+## OptionalDeps: Clique
 ## X-eMail: troeks@gmail.com
 ## X-oUF: oUF
 ## Notes: Unit frame framework. Does nothing by itself.
