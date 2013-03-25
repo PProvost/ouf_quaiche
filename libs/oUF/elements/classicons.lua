@@ -203,11 +203,16 @@ do
 			self:UnregisterEvent('UNIT_POWER_FREQUENT', Update)
 		end
 	elseif(PlayerClass == 'WARLOCK') then
-		ClassPowerType = SPELL_POWER_SOUL_SHARDS
-		ClassPowerTypes = {
-			SOUL_SHARDS = true,
-		}
-		RequireSpell = WARLOCK_SOULBURN
+		local spec = GetSpecialization()
+		if spec == SPEC_WARLOCK_DESTRUCTION then
+			ClassPowerType = SPELL_POWER_BURNING_EMBERS
+			ClassPowerTypes = { BURNING_EMBERS = true }
+			RequireSpell = 108647 -- can't find the symbolic name
+		else
+			ClassPowerType = SPELL_POWER_SOUL_SHARDS
+			ClassPowerTypes = { SOUL_SHARDS = true }
+			RequireSpell = WARLOCK_SOULBURN
+		end
 
 		ClassPowerEnable = function(self)
 			local element = self.ClassIcons
